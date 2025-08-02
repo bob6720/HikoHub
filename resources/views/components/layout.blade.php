@@ -10,14 +10,17 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-black text-white font-hanken-grotesk min-h-screen flex flex-col">
-    <div class="px-10 flex-grow max-w-[986px] mx-auto w-full flex flex-col">
-        <x-header />
 
-        <main class="mt-10 flex-grow">
-            {{ $slot }}
-        </main>
+    {{-- Header spans full width --}}
+    <x-header />
 
-        <x-footer />
-    </div>
+    {{-- Main content area centered and width-constrained --}}
+    <main class="flex-grow px-10 mt-10 w-full max-w-[986px] mx-auto">
+        {{ $slot }}
+    </main>
+
+    {{-- Footer spans full width --}}
+    <x-footer />
+
 </body>
 </html>

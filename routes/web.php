@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use Inertia\Inertia;
 
 Route::get('/', function () {
     return view('index');
@@ -29,16 +31,22 @@ Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
 
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
-
-Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-});
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Routes only for guests (not logged in)
+Route::middleware('guest')->group(function () {
+    Route::view('/login', 'auth.login')->name('login'); // Show your Blade login view
+
+    Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+});
+
+// Routes only for authenticated users
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
