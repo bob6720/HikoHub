@@ -15,7 +15,19 @@
                 <input type="password" name="password" class="w-full border p-2 rounded text-black" required>
             </div>
 
+            {{-- reCAPTCHA --}}
+            <div class="mb-4">
+                {!! NoCaptcha::display() !!}
+                @if ($errors->has('g-recaptcha-response'))
+                    <p class="text-red-600 text-sm mt-1">
+                        {{ $errors->first('g-recaptcha-response') }}
+                    </p>
+                @endif
+            </div>
+
             <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Login</button>
         </form>
     </div>
+
+    {!! NoCaptcha::renderJs() !!}
 </x-layout>
