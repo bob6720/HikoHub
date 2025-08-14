@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Layout from '@/Layouts/MainLayout'; // Import MainLayout
+import Layout from '@/Layouts/MainLayout'; 
 
 const ROOMS = {
   1: [
