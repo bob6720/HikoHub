@@ -7,21 +7,24 @@ use Inertia\Inertia;
 use App\Models\Event;
 use Illuminate\Http\Request;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
 
-Route::get('/events', function () {
+// Homepage route: fetch upcoming events and render Events page
+Route::get('/', function () {
     $events = Event::where('event_date', '>', now()->toDateString())
                     ->orderBy('event_date', 'asc')
                     ->get();
+    // Render Events page with events passed as props
     return Inertia::render('Events', ['events' => $events]);
 });
+
+// Route::get('/', function () {
+//     return Inertia::render('Welcome', [ 
+//         'canLogin' => Route::has('login'), 
+//         'canRegister' => Route::has('register'),
+//         'laravelVersion' => Application::VERSION,
+//         'phpVersion' => PHP_VERSION,
+//     ]);
+// });
 
 Route::get('/booking', function () {
     return Inertia::render('Booking');
@@ -31,13 +34,7 @@ Route::get('/calendar', function () {
     return Inertia::render('Calendar');
 })->name('calendar');
 
-Route::get('/contactus', function () {
-    return Inertia::render('ContactUs');
-})->name('contactus');
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
