@@ -11,20 +11,13 @@ use Illuminate\Http\Request;
 // Homepage route: fetch upcoming events and render Events page
 Route::get('/', function () {
     $events = Event::where('event_date', '>', now()->toDateString())
-                    ->orderBy('event_date', 'asc')
-                    ->get();
+                    ->orderBy('event_date', 'asc') 
+                    ->simplePaginate(4); // 9 events per page
+                    //->withQueryString(); // keep filters on next/prev
     // Render Events page with events passed as props
     return Inertia::render('Events', ['events' => $events]);
 });
 
-// Route::get('/', function () {
-//     return Inertia::render('Welcome', [ 
-//         'canLogin' => Route::has('login'), 
-//         'canRegister' => Route::has('register'),
-//         'laravelVersion' => Application::VERSION,
-//         'phpVersion' => PHP_VERSION,
-//     ]);
-// });
 
 Route::get('/booking', function () {
     return Inertia::render('Booking');
@@ -33,7 +26,6 @@ Route::get('/booking', function () {
 Route::get('/calendar', function () {
     return Inertia::render('Calendar');
 })->name('calendar');
-
 
 
 Route::middleware('auth')->group(function () {
