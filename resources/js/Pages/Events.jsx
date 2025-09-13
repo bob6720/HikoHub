@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import Layout from '@/Layouts/MainLayout';
 import EventCard from '@/Components/EventCard';
 import { Link } from '@inertiajs/react'; 
+import Modal from "@/Components/Modal"; 
 
 export default function Events({ events, organisers}) {
   // Flags for pagination and empty state
@@ -69,17 +70,27 @@ export default function Events({ events, organisers}) {
           </Link>
         </form>
 
+
         {/* Events grid: show list of event cards or empty state */}
         {isEmpty ? (
           <p className="text-center text-gray-400"> No Events Found.</p>
         ) : (
           <div className="grid gap-6" style={{gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))'}}>
-            {
-              events.data.map(event => (
-                // build card for each event
-                <EventCard key={event.id} event = {event}/>
-              ))
-            }
+            {events.data.map(e=>(
+              <div key={e.id} className="relative group">
+                <EventCard event={e}/>
+                {/* Tool tip on hover */}
+                <div className="absolute hidden group-hover:block top-full mt-2 w-72 rounded-lg border bg-white p-3 shadow-xl z-50">
+                  <div className="text-gray-600 text-sm">{e.event_name}</div>
+                  <div className="text-gray-600 text-sm">{e.organiser}</div>
+                  <div className="text-gray-600 text-sm">{new Date(e.event_date).toLocaleDateString()}</div> 
+                  <div className="text-gray-600 text-sm">{e.start_time} - {e.end_time}</div>
+                  <div className="text-gray-600 text-sm">{e.number_of_people} attending</div>
+                  {/*<div className="text-gray-600 text-sm">Space: {e.space}</div>*/} 
+                  {/*<div className="text-gray-600 text-sm">Description: {e.description}</div>*/} 
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
@@ -102,7 +113,7 @@ export default function Events({ events, organisers}) {
 
         </div>
       </div>
-
+  
     </Layout>
   );
 }
