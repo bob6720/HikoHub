@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
 import Layout from '@/Layouts/MainLayout';
 import EventCard from '@/Components/EventCard';
 import { Link } from '@inertiajs/react'; 
+import { router } from '@inertiajs/react';
+import React, { useState } from 'react';
 
 export default function Events({ events, organisers}) {
   // Flags for pagination and empty state
@@ -14,12 +15,24 @@ export default function Events({ events, organisers}) {
   const when = params.get('when') ?? '';
 
   // Helper: update query string with new filters (removes unused + resets page)
-  const updateParams = (timeFilter) => {
-  const p = new URLSearchParams(params);
-  if (timeFilter.when === '') p.delete('when'); else p.set('when', timeFilter.when);
-  p.delete('page'); // reset pagination
-  return `/?${p.toString()}`;
+  const updateParams = (key, value) => {
+    const p = new URLSearchParams(params);
+
+    if (value === '' || value == null) {
+      p.delete(key);
+    } else {p.set(key, value);}
+
+    p.delete('page'); // reset pagination
+    return `/?${p.toString()}`; // returns URL with updated params
   };
+
+  const handleSearch = (e) =>{
+    if (e.key === 'Enter') {
+      e.preventDefault(); // intercept form submit
+      const url = updateParams('q', e.target.value); 
+      router.visit(url); // let inertia handle navigation
+    }
+  }
 
   return (
     <Layout> {/* Page layout wrapper */}
@@ -30,44 +43,49 @@ export default function Events({ events, organisers}) {
         </div>
 
         {/* Search and filters (search input, organiser dropdown, time buckets) */}
-        <form method="get"  action="/" className="mb-6 flex gap-2 justify-center">
-        {/* Search by title/organiser keyword */}
-          <input type="search" name="q" placeholder="Search.."
-          defaultValue={q} 
-          className="w-full max-w-md rounded border border-white-700 bg-black/30 px-3 py-2 text-white" // styling
-          />
+        <form className="mb-6 flex gap-2 justify-center">
+          {/* <div> */}
+            {/* Search by title/organiser keyword */}
+            <input type="search" name="q" placeholder="Search.." defaultValue={q} 
+            className="w-full max-w-md rounded border border-white-700 bg-black/30 px-3 py-2 text-white" 
+            onKeyDown={handleSearch}
+            />
         
-        {/* Filter by organiser */}
-        <select name="organiser" defaultValue={org} className="rounded border border-purple-700 bg-black/30 px-3 py-2 text-white" onChange={(e) => e.target.form.submit()}>
-          <option value="">All Organisers</option>
-          {/* Populate dropdown with organiser list */}
-          {organisers?.map(o => ( 
-            <option key={o} value={o}> 
-              {o} 
-            </option>
-          ))}
-        </select>
-
-        {/* Quick time filters */}
-          <Link
-            href={updateParams({ when: 'week' })}
-            className="px-4 py-2 rounded-full border border-purple-700 bg-purple-600 text-white hover:bg-purple-700 transition text-sm flex items-center justify-center"
-          >
-            This week
-          </Link>
-          <Link
-            href={updateParams({ when: 'month' })}
-            className="px-4 py-2 rounded-full border border-purple-700 bg-purple-600 text-white hover:bg-purple-700 transition text-sm flex items-center justify-center"
-          >
-            This Month
-          </Link>
-          <Link
-            href={updateParams({ when: '' })}
-            className="px-4 py-2 rounded-full border border-purple-700 bg-purple-600 text-white hover:bg-purple-700 transition text-sm flex items-center justify-center"
-          >
-            Clear
-          </Link>
+            {/* Filter by organiser */}
+            <select name="organiser" defaultValue={org} className="rounded border border-purple-700 bg-black/30 px-3 py-2 text-white" onChange={(e) => e.target.form.submit()}>
+              <option value="">All Organisers</option>
+              {/* Populate dropdown with organiser list */}
+              {organisers?.map(o => ( 
+                <option key={o} value={o}> 
+                  {o} 
+                </option>
+              ))}
+            </select>
+          {/* </div> */}
+          
+          {/* Quick time filters */}
+          {/* <div> */}
+            <Link
+              href={updateParams('when', 'week')}
+              className="px-4 py-2 rounded-full border border-purple-700 bg-purple-600 text-white hover:bg-purple-700 transition text-sm flex items-center justify-center"
+            >
+              This week
+            </Link>
+            <Link
+              href={updateParams('when', 'month')}
+              className="px-4 py-2 rounded-full border border-purple-700 bg-purple-600 text-white hover:bg-purple-700 transition text-sm flex items-center justify-center"
+            >
+              This Month
+            </Link>
+            <Link
+              href="/?"
+              className="px-4 py-2 rounded-full border border-purple-700 bg-purple-600 text-white hover:bg-purple-700 transition text-sm flex items-center justify-center"
+            >
+              Clear
+            </Link>
+          {/* </div> */}
         </form>
+        
 
 
         {/* Events grid: show list of event cards or empty state */}
