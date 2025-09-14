@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import Layout from '@/Layouts/MainLayout';
 import EventCard from '@/Components/EventCard';
 import { Link } from '@inertiajs/react'; 
-import Modal from "@/Components/Modal"; 
 
 export default function Events({ events, organisers}) {
   // Flags for pagination and empty state
@@ -79,8 +78,8 @@ export default function Events({ events, organisers}) {
             {events.data.map(e=>(
               <div key={e.id} className="relative group">
                 <EventCard event={e}/>
-                {/* Tool tip on hover */}
-                <div className="absolute hidden group-hover:block top-full mt-2 w-72 rounded-lg border bg-white p-3 shadow-xl z-50">
+                {/* Tool tip on hover --> move to event card component or new component*/} 
+                <div className="absolute hidden group-hover:block bottom-full mb-2 left-1/2 -translate-x-1/2 w-72 rounded-lg border bg-white p-3 shadow-xl z-50">
                   <div className="text-gray-600 text-sm">{e.event_name}</div>
                   <div className="text-gray-600 text-sm">{e.organiser}</div>
                   <div className="text-gray-600 text-sm">{new Date(e.event_date).toLocaleDateString()}</div> 
