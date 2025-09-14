@@ -28,8 +28,8 @@ export default function Events({ events, organisers}) {
 
   const handleSearch = (e) =>{
     if (e.key === 'Enter') {
-      e.preventDefault(); // intercept form submit
-      const url = updateParams('q', e.target.value); 
+      e.preventDefault(); // intercept default form submit
+      const url = updateParams('q', e.target.value); // get url with params
       router.visit(url); // let inertia handle navigation
     }
   }
@@ -52,7 +52,11 @@ export default function Events({ events, organisers}) {
             />
         
             {/* Filter by organiser */}
-            <select name="organiser" defaultValue={org} className="rounded border border-purple-700 bg-black/30 px-3 py-2 text-white" onChange={(e) => e.target.form.submit()}>
+            <select name="organiser" defaultValue={org} className="rounded border border-purple-700 bg-black/30 px-3 py-2 text-white" 
+            onChange={(e) => {  // intercept default form submit 
+              const url = updateParams('organiser', e.target.value); // get url with params
+              router.get(url, {}, { preserveScroll: true, replace: true });
+            }}>
               <option value="">All Organisers</option>
               {/* Populate dropdown with organiser list */}
               {organisers?.map(o => ( 
