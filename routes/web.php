@@ -12,7 +12,7 @@ Route::get('/', function (Request $request) {
     $q         = trim((string) $request->input('q', ''));          
     $organiser = trim((string) $request->input('organiser', ''));  
     $when      = trim((string) $request->input('when', ''));       
-    $perPage   = 4; // TODO: increase to 9 when UI is settled
+    $perPage   = 9; 
 
     // Base query: upcoming events ordered by soonest
     $query = Event::query()
