@@ -28,7 +28,7 @@ export default function MainLayout({ children }) {
         {/* main content wrapper */}
         <div className="flex flex-col flex-grow">
 
-          <main className="flex-grow px-6 md:px-10 mt-12 w-full max-w-[986px] mx-auto text-center">
+          <main className="flex-grow px-6 md:px-10 mt-12 w-full max-w-7xl mx-auto text-center">
             {children}
           </main>
 
