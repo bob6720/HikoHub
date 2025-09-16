@@ -16,7 +16,7 @@ export default function EventCard({event}){
                     <a className="absolute top-2 left-2 text-s bg-[#F04639] text-white px-6 py-3 rounded-full hover:bg-[#E32373] transition " href={calendarLink(event)} target="_blank" rel="noopener noreferrer"> 
                         Add to Calendar {/* Add calendar icon vector */}
                     </a>
-                    <span className="absolute bottom-2 left-2 text-4xl text-[#690A32] px-2 py-1 rounded font-semibold">
+                    <span className="absolute bottom-2 left-2 text-4xl text-[#690A32] px-2 py-1 rounded">
                         {formatDate(event.event_date)}
                     </span>
                 </div>
