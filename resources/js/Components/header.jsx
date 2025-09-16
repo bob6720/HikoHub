@@ -1,10 +1,10 @@
 import React from "react";
-import logo from "../../images/HIKOHub.png"; // adjust path if needed
+import logo from "../../images/HIKOHub.svg"; // adjust path if needed
 import { UserCircleIcon } from "@heroicons/react/24/outline";
 
 export default function Header({ isAuthenticated, onLogout }) {
   return (
-    <nav className="sticky top-0 z-50 w-screen h-32 bg-black/30 backdrop-blur-lg border-b border-purple-700/50 py-10">
+    <nav className="sticky top-0 z-50 w-screen h-32 bg-[#690A32] bg-opacity-95 shadow-inner backdrop-blur-lg py-10">
       <div className="h-16 px-4 flex items-center w-full">
       
       {/* Logo */}
@@ -14,7 +14,7 @@ export default function Header({ isAuthenticated, onLogout }) {
           <img
             src={logo}
             alt="Logo"
-            className="rounded-full transition-transform duration-300 ease-in-out group-hover:scale-110"
+            className="w-full h-full rounded-full transition-transform duration-300 ease-in-out group-hover:scale-110"
           />
         </a>
         
@@ -42,7 +42,7 @@ export default function Header({ isAuthenticated, onLogout }) {
         // Guest
         <div className="px-10">
           <a href="/login" className="group"> 
-            <UserCircleIcon className= "w-20 h-20 text-purple-400 transition-transform duration-300 ease-in-out group-hover:scale-110"/>
+            <UserCircleIcon className= "w-20 h-20 text-[#C89DA7] transition-transform duration-300 ease-in-out group-hover:scale-110"/>
           </a>
         </div>
       )}
