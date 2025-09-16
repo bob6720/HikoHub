@@ -37,51 +37,50 @@ export default function Events({ events, organisers}) {
   return (
     <Layout> {/* Page layout wrapper */}
 
-      <div className="max-w-5xl mx-auto mt-8">
-
-        <form className="flex flex-col gap-4 mb-16">
-          {/* Row 1 */}
-          <div className="flex items-center justify-between mt-8">
-            {/* Page title */}
-            <h1 className="text-8xl font-bold mb-6 text-center text-purple-700">Events</h1>
-            <div className="flex gap-2">
-              {/* Search by title/organiser keyword */}
-              <input type="search" name="q" placeholder="Search.." defaultValue={q} 
-              className="w-full max-w-md rounded-full border-purple-700 bg-black/30 px-3 py-2 text-l rounded" onKeyDown={handleSearch}/>
-              {/* Filter by organiser */}
-              <select name="organiser" defaultValue={org} className="rounded-full border-purple-700 bg-black/30 px-3 py-2 text-l text-purple-400" 
-                onChange={(e) => {  // intercept default form submit 
-                  const url = updateParams('organiser', e.target.value); // get url with params
-                  router.get(url, {}, { preserveScroll: true, replace: true });
-                }}>
-                <option value="">All Organisers</option>
-                {/* Populate dropdown with organiser list */}
-                {organisers?.map(o => ( 
-                  <option key={o} value={o}> 
-                  {o} 
-                  </option>
-                ))}
-              </select>
-            </div>
+      <div className="max-w-5xl mx-auto mt-16">
+        <form className="flex flex-col gap-4">
+          {/* Page title */}
+          <div className="flex items-center justify-start gap-2 mb-12">
+            <h1 className="text-8xl font-semibold mb-6 text-center text-[#46041F]">EVENTS</h1>
           </div>
 
-          {/* Row 2 */}
-          <div className="flex items-center justify-end">
+          {/* Controls */}
+          <div className="flex gap-2 mb-16">
+            {/* Search bar */}
+            <input type="search" name="q" placeholder="Search.." defaultValue={q} className="w-full max-w-md rounded-full border-pink-400 bg-[#F9FAFB] px-4 py-2 text-l rounded" onKeyDown={handleSearch}/>
+            {/* Drop-down filter */}
+            <select name="organiser" defaultValue={org} className="rounded-full border-pink-400 bg-[#F9FAFB] px-4 py-2 text-l text-gray-400" 
+              onChange={(e) => {  // intercept default form submit 
+                const url = updateParams('organiser', e.target.value); // get url with params
+                router.get(url, {}, { preserveScroll: true, replace: true });
+              }}>
+              <option value="">All Organisers</option>
+              {/* Populate dropdown with organiser list */}
+              {organisers?.map(o => ( 
+                <option key={o} value={o}> 
+                  {o} 
+                </option>
+              ))}
+            </select>
+
             <div className="flex gap-2">
-                <Link href={updateParams('when', 'week')}
-                  className="px-4 py-2 rounded-full border border-purple-700 bg-purple-600 text-white hover:bg-purple-700 shadow-md  transition text-l flex items-center justify-center shadow-lg shadow">
+              <Link href={updateParams('when', 'week')}
+                  className="px-6 py-3 rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-purple-600 transition text-l flex items-center justify-center shadow-lg shadow">
                   This week
                 </Link>
                 <Link href={updateParams('when', 'month')}
-                  className="px-4 py-2 rounded-full border border-purple-700 bg-purple-600 text-white hover:bg-purple-700 transition text-l flex items-center justify-center shadow-lg shadow">
+                  className="px-6 py-3 rounded-full border border-[#DA3C38] bg-[#F04639] text-white hover:bg-purple-600 transition text-l flex items-center justify-center shadow-lg shadow">
                   This Month
                 </Link>
-                <Link href="/?" className="px-4 py-2 rounded-full border border-purple-700 bg-purple-600 text-white hover:bg-purple-700 transition text-l flex items-center justify-center shadow-lg shadow">
+                <Link href="/?" 
+                  className="px-6 py-3 rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-purple-600 transition text-l flex items-center justify-center shadow-lg shadow">
                   Clear
                 </Link>
             </div>
           </div>
         </form>
+
+
 
         {/* Events grid: show list of event cards or empty state */}
         {isEmpty ? (
@@ -91,7 +90,8 @@ export default function Events({ events, organisers}) {
             {events.data.map(e=>(
               <div key={e.id} className="relative group">
                 <EventCard event={e}/>
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-50 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition duration-150 ease-out">
+
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-50 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition duration-150 ease-out pointer-events-none">
                   <div className="w-[22rem] max-w-[80vw] rounded-xl bg-white/95 backdrop-blur px-5 py-4 shadow-2xl ring-1 ring-black/10 text-center">
                     <div className="text-base font-semibold text-gray-800">{e.event_name}</div>
                       {/* <div className="mt-1 text-sm text-gray-600">{new Date(e.event_date).toLocaleDateString()}</div> */}
@@ -112,14 +112,14 @@ export default function Events({ events, organisers}) {
           
           {/* Previous page link (hidden if on first page) */}
           {!isFirstPage && (
-            <Link href={events.prev_page_url} className="px-4 py-2 rounded border border-white-700 hover:bg-pink-600">
+            <Link href={events.prev_page_url} className="px-4 py-2 rounded border border-white-700 hover:bg[#F04639]">
               Previous
             </Link>  
           )}
 
           {/* Next page link */}
           {events.next_page_url && (
-            <Link href={events.next_page_url} className="px-4 py-2 rounded border border-white-700 hover:bg-pink-600">
+            <Link href={events.next_page_url} className="px-4 py-2 rounded border border-white-700 hover:bg[#F04639]">
             Load More..
             </Link>
           )}
@@ -130,3 +130,4 @@ export default function Events({ events, organisers}) {
     </Layout>
   );
 }
+

@@ -21,7 +21,7 @@ export default function MainLayout({ children }) {
       </Head>
 
       {/* page wrapper */}
-      <div className="bg-gradient-to-br from-black via-purple-900 to-black text-white font-hanken-grotesk min-h-screen flex flex-col">
+      <div className="bg-white text-black font-hanken-grotesk min-h-screen flex flex-col">
         
         <Header/> {/* header component */}
 
