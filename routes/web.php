@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 Route::get('/', function (Request $request) {
     // Query params (all optional)
     $q         = trim((string) $request->input('q', ''));          
-    $organiser = trim((string) $request->input('organiser', ''));  
+    $company = trim((string) $request->input('company', ''));  
     $when      = trim((string) $request->input('when', ''));       
     $perPage   = 9; 
 
@@ -19,16 +19,16 @@ Route::get('/', function (Request $request) {
         ->where('event_date', '>', now()->toDateString()) // only future-dated events
         ->orderBy('event_date', 'asc'); // soonest first
 
-    // search across name or organiser (case-insensitive, partial..)
+    // search across name or organiser 
     if ($q !== '') {
         $query->where(function ($s) use ($q) {
             $s->where('event_name', 'like', "%{$q}%")
               ->orWhere('organiser',  'like', "%{$q}%");
         });
     }
-    // Organiser filter (ignore empty/null)
-    if ($organiser !== '' && $organiser !== null){
-        $query->where('organiser', $organiser); 
+    // Company filter (ignore empty/null)
+    if ($company !== '' && $company !== null){
+        $query->where('company', $company); 
     }
     // Time buckets
     if ($when == 'week') {
@@ -40,16 +40,16 @@ Route::get('/', function (Request $request) {
     // Execute with pagination: keep current filters in the links
     $events = $query->simplePaginate($perPage)->withQueryString();
 
-    // Build organiser options for the dropdown (distinct, sorted)
-    $organisers = Event::distinct()
-        ->orderBy('organiser')
-        ->pluck('organiser');
+    // Build company options for the dropdown 
+    $companies = Event::distinct()
+        ->orderBy('company')
+        ->pluck('company');
     
     // Render page component with paginator + organiser list
     return Inertia::render('Events', 
     [   
         'events' => $events,    // paginator object
-        'organisers' => $organisers, // names for dropdown
+        'companies' => $companies, // names for dropdown
     ]);
 });
 
