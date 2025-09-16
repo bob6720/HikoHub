@@ -4,14 +4,14 @@ import { Link } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
 import React, { useState } from 'react';
 
-export default function Events({ events, organisers}) {
+export default function Events({ events, companies}) {
   // Flags for pagination and empty state
   const isFirstPage = !events.prev_page_url; 
   const isEmpty = !events?.data || events.data.length === 0;
   // Get current query parameters so filters/search persist across renders
   const params = new URLSearchParams(window.location.search);
   const q = params.get('q') ?? '';
-  const org = params.get('organiser') ?? '';
+  const org = params.get('company') ?? '';
   const when = params.get('when') ?? '';
 
   // Helper: update query string with new filters (removes unused + resets page)
@@ -41,22 +41,22 @@ export default function Events({ events, organisers}) {
         <form className="flex flex-col gap-4">
           {/* Page title */}
           <div className="flex items-center justify-start gap-2 mb-12">
-            <h1 className="text-8xl font-semibold mb-6 text-center text-[#46041F]">EVENTS</h1>
+            <h1 className="text-8xl font-semibold mb-6 text-center text-[#690A32]">EVENTS</h1>
           </div>
 
           {/* Controls */}
           <div className="flex gap-2 mb-16">
             {/* Search bar */}
-            <input type="search" name="q" placeholder="Search.." defaultValue={q} className="w-full max-w-md rounded-full border-pink-400 bg-[#F9FAFB] px-4 py-2 text-l rounded" onKeyDown={handleSearch}/>
+            <input type="search" name="q" placeholder="Search.." defaultValue={q} className="w-full max-w-2xl h-12 rounded-full border-[#E32373] bg-[#F9FAFB] px-5 text-base placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#E32373] focus:border-[#E32373]" onKeyDown={handleSearch}/>
             {/* Drop-down filter */}
-            <select name="organiser" defaultValue={org} className="rounded-full border-pink-400 bg-[#F9FAFB] px-4 py-2 text-l text-gray-400" 
+            <select name="company" defaultValue={org} className="h-12 min-w-[220px] rounded-full border-[#E32373] bg-[#F9FAFB] px-5 text-base text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#E32373] focus:border-[#E32373]" 
               onChange={(e) => {  // intercept default form submit 
-                const url = updateParams('organiser', e.target.value); // get url with params
+                const url = updateParams('company', e.target.value); // get url with params
                 router.get(url, {}, { preserveScroll: true, replace: true });
               }}>
-              <option value="">All Organisers</option>
+              <option value="">All Companies</option>
               {/* Populate dropdown with organiser list */}
-              {organisers?.map(o => ( 
+              {companies?.map(o => ( 
                 <option key={o} value={o}> 
                   {o} 
                 </option>
@@ -65,15 +65,15 @@ export default function Events({ events, organisers}) {
 
             <div className="flex gap-2">
               <Link href={updateParams('when', 'week')}
-                  className="px-6 py-3 rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-purple-600 transition text-l flex items-center justify-center shadow-lg shadow">
+                  className="h-12 px-5 rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
                   This week
                 </Link>
                 <Link href={updateParams('when', 'month')}
-                  className="px-6 py-3 rounded-full border border-[#DA3C38] bg-[#F04639] text-white hover:bg-purple-600 transition text-l flex items-center justify-center shadow-lg shadow">
+                  className="h-12 px-5 rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
                   This Month
                 </Link>
                 <Link href="/?" 
-                  className="px-6 py-3 rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-purple-600 transition text-l flex items-center justify-center shadow-lg shadow">
+                  className="h-12 px-5 rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
                   Clear
                 </Link>
             </div>
@@ -86,7 +86,7 @@ export default function Events({ events, organisers}) {
         {isEmpty ? (
           <p className="text-center text-white"> No Events Found.</p>
         ) : (
-          <div className="grid gap-6" style={{gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))'}}>
+          <div className="grid gap-6 mb-12" style={{gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))'}}>
             {events.data.map(e=>(
               <div key={e.id} className="relative group">
                 <EventCard event={e}/>
@@ -94,12 +94,10 @@ export default function Events({ events, organisers}) {
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-50 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition duration-150 ease-out pointer-events-none">
                   <div className="w-[22rem] max-w-[80vw] rounded-xl bg-white/95 backdrop-blur px-5 py-4 shadow-2xl ring-1 ring-black/10 text-center">
                     <div className="text-base font-semibold text-gray-800">{e.event_name}</div>
-                      {/* <div className="mt-1 text-sm text-gray-600">{new Date(e.event_date).toLocaleDateString()}</div> */}
                       <div className="mt-1 text-sm font-medium text-gray-700">
                         {new Date(`1970-01-01T${e.start_time}`).toLocaleTimeString([], {hour:'numeric', minute:'2-digit', hour12:true})}
                         {" – "}{new Date(`1970-01-01T${e.end_time}`).toLocaleTimeString([], {hour:'numeric', minute:'2-digit', hour12:true})}
                       </div>
-                      <div className="mt-2 text-xs text-gray-500">{e.number_of_people} attending</div>
                     </div>
                   </div>
                 </div>
@@ -112,14 +110,14 @@ export default function Events({ events, organisers}) {
           
           {/* Previous page link (hidden if on first page) */}
           {!isFirstPage && (
-            <Link href={events.prev_page_url} className="px-4 py-2 rounded border border-white-700 hover:bg[#F04639]">
+            <Link href={events.prev_page_url} className="px-6 py-3 rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-l flex items-center justify-center shadow-lg shadow">
               Previous
             </Link>  
           )}
 
           {/* Next page link */}
           {events.next_page_url && (
-            <Link href={events.next_page_url} className="px-4 py-2 rounded border border-white-700 hover:bg[#F04639]">
+            <Link href={events.next_page_url} className="px-6 py-3 rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-l flex items-center justify-center shadow-lg shadow">
             Load More..
             </Link>
           )}
@@ -130,4 +128,3 @@ export default function Events({ events, organisers}) {
     </Layout>
   );
 }
-

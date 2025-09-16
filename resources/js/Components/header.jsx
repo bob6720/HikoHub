@@ -42,7 +42,7 @@ export default function Header({ isAuthenticated, onLogout }) {
         // Guest
         <div className="px-10">
           <a href="/login" className="group"> 
-            <UserCircleIcon className= "w-20 h-20 text-[#C89DA7] transition-transform duration-300 ease-in-out group-hover:scale-110"/>
+            <UserCircleIcon className= "w-20 h-20 text-[#F7C5C4] transition-transform duration-300 ease-in-out group-hover:scale-110"/>
           </a>
         </div>
       )}

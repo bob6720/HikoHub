@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('event_name');
             $table->string('organiser');
-            $table->string('business')->nullable();
+            $table->string('company');
             $table->string('contact_number');
             $table->string('contact_email');
             $table->date('event_date');
