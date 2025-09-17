@@ -20,22 +20,26 @@ export default function MainLayout({ children }) {
         <meta charSet="UTF-8" />
       </Head>
 
-      <div className="bg-gradient-to-br from-black via-purple-900 to-black text-white font-hanken-grotesk min-h-screen flex">
-        {/* Sidebar header on the left */}
-        <aside className="w-64 flex-shrink-0">
-          <Header />
-        </aside>
+      {/* page wrapper */}
+      <div className="bg-white text-black font-hanken-grotesk min-h-screen flex flex-col">
+        
+        <Header/> {/* header component */}
 
-        {/* Main content area */}
+        {/* main content wrapper */}
         <div className="flex flex-col flex-grow">
-          <main className="flex-grow px-6 md:px-10 mt-12 w-full max-w-[986px] mx-auto text-center">
+
+          <main className="flex-grow px-6 md:px-10 mt-12 w-full max-w-7xl mx-auto text-center">
             {children}
           </main>
 
-          {/* Footer spans content width (not full width) */}
-          <Footer />
         </div>
+
+        <Footer/>  
+
       </div>
+
+
+
     </>
   );
 }
