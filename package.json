@@ -23,6 +23,7 @@
         "vite": "^7.0.4"
     },
     "dependencies": {
+        "@heroicons/react": "^2.2.0",
         "date-fns": "^4.1.0",
         "react-datepicker": "^8.4.0",
         "react-google-recaptcha": "^3.1.0",

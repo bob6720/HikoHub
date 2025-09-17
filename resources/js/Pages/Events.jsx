@@ -1,66 +1,130 @@
-import React, { useState, useMemo } from 'react';
 import Layout from '@/Layouts/MainLayout';
+import EventCard from '@/Components/EventCard';
+import { Link } from '@inertiajs/react'; 
+import { router } from '@inertiajs/react';
+import React, { useState } from 'react';
 
-export default function Events({ events }) {
-  const [sortBy, setSortBy] = useState('event_date');
+export default function Events({ events, companies}) {
+  // Flags for pagination and empty state
+  const isFirstPage = !events.prev_page_url; 
+  const isEmpty = !events?.data || events.data.length === 0;
+  // Get current query parameters so filters/search persist across renders
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get('q') ?? '';
+  const org = params.get('company') ?? '';
+  const when = params.get('when') ?? '';
 
-  // Sort events based on sortBy value
-  const sortedEvents = useMemo(() => {
-    return [...events].sort((a, b) => {
-      if (sortBy === 'event_date') {
-        return new Date(a.event_date) - new Date(b.event_date);
-      } else if (sortBy === 'organiser') {
-        return a.organiser.localeCompare(b.organiser);
-      }
-      return 0;
-    });
-  }, [events, sortBy]);
+  // Helper: update query string with new filters (removes unused + resets page)
+  const updateParams = (key, value) => {
+    const p = new URLSearchParams(params);
+
+    if (value === '' || value == null) {
+      p.delete(key);
+    } else {p.set(key, value);}
+
+    p.delete('page'); // reset pagination
+    return `/?${p.toString()}`; // returns URL with updated params
+  };
+
+  const handleSearch = (e) =>{
+    if (e.key === 'Enter') {
+      e.preventDefault(); // intercept default form submit
+      const url = updateParams('q', e.target.value); // get url with params
+      router.visit(url); // let inertia handle navigation
+    }
+  }
 
   return (
-    <Layout>
-      <div className="max-w-5xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6 text-center text-purple-700">Upcoming Events</h1>
+    <Layout> {/* Page layout wrapper */}
 
-        {/* Sort Filter */}
-        <div className="mb-4 flex justify-end items-center space-x-3">
-          <label htmlFor="sort" className="font-semibold text-gray-700">
-            Sort by:
-          </label>
-          <select
-            id="sort"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="border border-gray-300 rounded-md px-9 py-2 text-gray-700 bg-white shadow-sm
-                      focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500
-                      transition duration-150 ease-in-out"
-          >
-            <option value="event_date">Event Date</option>
-            <option value="organiser">Organiser</option>
-          </select>
-        </div>
+      <div className="max-w-5xl mx-auto mt-16">
+        <form className="flex flex-col gap-4">
+          {/* Page title */}
+          <div className="flex items-center justify-start gap-2 mb-12">
+            <h1 className="text-8xl font-semibold mb-6 text-center text-[#690A32]">EVENTS</h1>
+          </div>
 
-        {/* Events grid */}
-        <div
-          className="grid gap-6"
-          style={{ 
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' 
-          }}
-        >
-          {sortedEvents.map(event => (
-            <div
-              key={event.id}
-              className="bg-black rounded shadow-md p-6 border border-gray-800 hover:shadow-lg transition-shadow duration-300"
-            >
-              <h2 className="text-xl font-semibold mb-2 text-purple-800">{event.event_name}</h2>
-              <p className="mb-1"><strong>Organiser:</strong> {event.organiser}</p>
-              <p className="mb-1"><strong>Date:</strong> {new Date(event.event_date).toLocaleDateString()}</p>
-              <p className="mb-1"><strong>Start Time:</strong> {event.start_time}</p>
-              <p className="mb-1"><strong>End Time:</strong> {event.end_time}</p>
-              <p><strong>Number of People:</strong> {event.number_of_people}</p>
+          {/* Controls */}
+          <div className="flex gap-2 mb-16">
+            {/* Search bar */}
+            <input type="search" name="q" placeholder="Search.." defaultValue={q} className="w-full max-w-2xl h-12 rounded-full border-[#E32373] bg-[#F9FAFB] px-5 text-base placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#E32373] focus:border-[#E32373]" onKeyDown={handleSearch}/>
+            {/* Drop-down filter */}
+            <select name="company" defaultValue={org} className="h-12 min-w-[220px] rounded-full border-[#E32373] bg-[#F9FAFB] px-5 text-base text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#E32373] focus:border-[#E32373]" 
+              onChange={(e) => {  // intercept default form submit 
+                const url = updateParams('company', e.target.value); // get url with params
+                router.get(url, {}, { preserveScroll: true, replace: true });
+              }}>
+              <option value="">All Companies</option>
+              {/* Populate dropdown with organiser list */}
+              {companies?.map(o => ( 
+                <option key={o} value={o}> 
+                  {o} 
+                </option>
+              ))}
+            </select>
+
+            <div className="flex gap-2">
+              <Link href={updateParams('when', 'week')}
+                  className="h-12 min-w-[140px] px-2 py-4 rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
+                  This week
+                </Link>
+                <Link href={updateParams('when', 'month')}
+                  className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
+                  This Month
+                </Link>
+                <Link href="/?" 
+                  className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
+                  Clear
+                </Link>
             </div>
-          ))}
+          </div>
+        </form>
+
+
+
+        {/* Events grid: show list of event cards or empty state */}
+        {isEmpty ? (
+          <p className="text-center text-white"> No Events Found.</p>
+        ) : (
+          <div className="grid gap-6 mb-12" style={{gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))'}}>
+            {events.data.map(e=>(
+              <div key={e.id} className="relative group">
+                <EventCard event={e}/>
+
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-50 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition duration-150 ease-out pointer-events-none">
+                  <div className="w-[22rem] max-w-[80vw] rounded-xl bg-white/95 backdrop-blur px-5 py-4 shadow-2xl ring-1 ring-black/10 text-center">
+                    <div className="text-base font-semibold text-gray-800">{e.event_name}</div>
+                      <div className="mt-1 text-sm font-medium text-gray-700">
+                        {new Date(`1970-01-01T${e.start_time}`).toLocaleTimeString([], {hour:'numeric', minute:'2-digit', hour12:true})}
+                        {" – "}{new Date(`1970-01-01T${e.end_time}`).toLocaleTimeString([], {hour:'numeric', minute:'2-digit', hour12:true})}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            ))}
+          </div>
+        )}
+
+        {/* Pagination controls */}
+        <div className="flex items-center justify-center gap-4 mt-8">
+          
+          {/* Previous page link (hidden if on first page) */}
+          {!isFirstPage && (
+            <Link href={events.prev_page_url} className="px-6 py-3 rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-l flex items-center justify-center shadow-lg shadow">
+              Previous
+            </Link>  
+          )}
+
+          {/* Next page link */}
+          {events.next_page_url && (
+            <Link href={events.next_page_url} className="px-6 py-3 rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-l flex items-center justify-center shadow-lg shadow">
+            Load More..
+            </Link>
+          )}
+
         </div>
       </div>
+  
     </Layout>
   );
 }

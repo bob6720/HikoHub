@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -7,37 +6,63 @@ use Inertia\Inertia;
 use App\Models\Event;
 use Illuminate\Http\Request;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+// Home: list upcoming events with optional search/filters; render Events page
+Route::get('/', function (Request $request) {
+    // Query params (all optional)
+    $q         = trim((string) $request->input('q', ''));          
+    $company = trim((string) $request->input('company', ''));  
+    $when      = trim((string) $request->input('when', ''));       
+    $perPage   = 9; 
+
+    // Base query: upcoming events ordered by soonest
+    $query = Event::query()
+        ->where('event_date', '>', now()->toDateString()) // only future-dated events
+        ->orderBy('event_date', 'asc'); // soonest first
+
+    // search across name or organiser 
+    if ($q !== '') {
+        $query->where(function ($s) use ($q) {
+            $s->where('event_name', 'like', "%{$q}%")
+              ->orWhere('organiser',  'like', "%{$q}%");
+        });
+    }
+    // Company filter (ignore empty/null)
+    if ($company !== '' && $company !== null){
+        $query->where('company', $company); 
+    }
+    // Time buckets
+    if ($when == 'week') {
+        $query->whereBetween('event_date', [now()->startOfWeek(), now()->endOfWeek()]); // current week
+    } elseif ($when == 'month') {
+        $query->whereBetween('event_date', [now()->startOfMonth(), now()->endOfMonth()]); // current month
+    }
+
+    // Execute with pagination: keep current filters in the links
+    $events = $query->simplePaginate($perPage)->withQueryString();
+
+    // Build company options for the dropdown 
+    $companies = Event::distinct()
+        ->orderBy('company')
+        ->pluck('company');
+    
+    // Render page component with paginator + organiser list
+    return Inertia::render('Events', 
+    [   
+        'events' => $events,    // paginator object
+        'companies' => $companies, // names for dropdown
     ]);
 });
 
-Route::get('/events', function () {
-    $events = Event::where('event_date', '>', now()->toDateString())
-                    ->orderBy('event_date', 'asc')
-                    ->get();
-    return Inertia::render('Events', ['events' => $events]);
-});
 
 Route::get('/booking', function () {
     return Inertia::render('Booking');
 })->name('booking');
 
+
 Route::get('/calendar', function () {
     return Inertia::render('Calendar');
 })->name('calendar');
 
-Route::get('/contactus', function () {
-    return Inertia::render('ContactUs');
-})->name('contactus');
-
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
