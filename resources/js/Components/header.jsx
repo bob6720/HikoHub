@@ -4,7 +4,7 @@ import { UserCircleIcon } from "@heroicons/react/24/outline";
 
 export default function Header({ isAuthenticated, onLogout }) {
   return (
-    <nav className="sticky top-0 z-50 w-screen h-32 bg-[#690A32] bg-opacity-95 shadow-inner backdrop-blur-lg py-10">
+    <nav className="rounded-b-lg sticky top-0 z-50 w-screen h-32 bg-[#690A32] bg-opacity-95 shadow-inner backdrop-blur-lg py-10">
       <div className="h-16 px-4 flex items-center w-full">
       
       {/* Logo */}
