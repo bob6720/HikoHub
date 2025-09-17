@@ -65,15 +65,15 @@ export default function Events({ events, companies}) {
 
             <div className="flex gap-2">
               <Link href={updateParams('when', 'week')}
-                  className="h-12 px-5 rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
+                  className="h-12 min-w-[140px] px-2 py-4 rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
                   This week
                 </Link>
                 <Link href={updateParams('when', 'month')}
-                  className="h-12 px-5 rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
+                  className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
                   This Month
                 </Link>
                 <Link href="/?" 
-                  className="h-12 px-5 rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
+                  className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
                   Clear
                 </Link>
             </div>
