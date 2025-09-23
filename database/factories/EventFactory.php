@@ -14,7 +14,7 @@ class EventFactory extends Factory
         return [
             'event_name' => $this->faker->catchPhrase(),
             'organiser' => $this->faker->name(),
-            'business' => $this->faker->company(),
+            'company' => $this->faker->company(),
             'contact_number' => $this->faker->phoneNumber(),
             'contact_email' => $this->faker->unique()->safeEmail(),
             'event_date' => $startTime->format('Y-m-d'),
