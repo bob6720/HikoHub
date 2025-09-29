@@ -29,8 +29,10 @@ return [
     ],
 
     'recaptcha' => [
-        'secret' => env('RECAPTCHA_SECRET'),
+    'sitekey' => env('VITE_NOCAPTCHA_SITEKEY'),
+    'secret'  => env('NOCAPTCHA_SECRET'),
     ],
+
 
     'slack' => [
         'notifications' => [
