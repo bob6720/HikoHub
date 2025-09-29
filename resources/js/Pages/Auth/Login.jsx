@@ -8,6 +8,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import logo from '../../../images/HIKOHub.svg';
 
 export default function Login({ status, canResetPassword }) {
     const recaptchaRef = useRef(null);
@@ -40,77 +41,99 @@ export default function Login({ status, canResetPassword }) {
         <GuestLayout>
             <Head title="Log in" />
 
-            {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">{status}</div>
-            )}
-
-            <form onSubmit={submit}>
-                <div>
-                    <InputLabel htmlFor="email" value="Email" />
-                    <TextInput
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        isFocused={true}
-                        onChange={(e) => setData('email', e.target.value)}
-                    />
-                    <InputError message={errors.email} className="mt-2" />
-                </div>
-
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="current-password"
-                        onChange={(e) => setData('password', e.target.value)}
-                    />
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div className="mt-4 block">
-                    <label className="flex items-center">
-                        <Checkbox
-                            name="remember"
-                            checked={data.remember}
-                            onChange={(e) => setData('remember', e.target.checked)}
-                        />
-                        <span className="ms-2 text-sm text-gray-600">Remember me</span>
-                    </label>
-                </div>
-
-                {/* reCAPTCHA widget */}
-                <div className="mt-6">
-                    <ReCAPTCHA
-                    sitekey={import.meta.env.VITE_NOCAPTCHA_SITEKEY}
-                    onChange={(token) => setData('recaptcha_token', token)}
-                    ref={recaptchaRef}
-                    />
-                    <InputError message={errors.recaptcha_token} className="mt-2" />
-                </div>
-
-
-                <div className="mt-4 flex items-center justify-end">
-                    {canResetPassword && (
-                        <Link
-                            href={route('password.request')}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        >
-                            Forgot your password?
+            <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-[#690A32] to-[#F04639]">
+                <div className="bg-white rounded-xl shadow-2xl p-10 w-full max-w-md">
+                    
+                    {/* Logo */}
+                    <div className="flex justify-center mb-6">
+                        <Link href="/">
+                            <img src={logo} className="h-24" alt="HIKOHub Logo" />
                         </Link>
+                    </div>
+
+                    {/* Status message */}
+                    {status && (
+                        <div className="mb-4 text-sm font-medium text-green-600 text-center">{status}</div>
                     )}
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
-                    </PrimaryButton>
+                    <h2 className="text-3xl font-bold text-center mb-8 text-[#690A32]">
+                        Welcome Back
+                    </h2>
+
+                    <form onSubmit={submit} className="space-y-5">
+
+                        {/* Email */}
+                        <div>
+                            <InputLabel htmlFor="email" value="Email" />
+                            <TextInput
+                                id="email"
+                                type="email"
+                                name="email"
+                                value={data.email}
+                                className="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-[#F04639] focus:border-[#F04639]"
+                                autoComplete="username"
+                                isFocused={true}
+                                onChange={(e) => setData('email', e.target.value)}
+                            />
+                            <InputError message={errors.email} className="mt-2" />
+                        </div>
+
+                        {/* Password */}
+                        <div>
+                            <InputLabel htmlFor="password" value="Password" />
+                            <TextInput
+                                id="password"
+                                type="password"
+                                name="password"
+                                value={data.password}
+                                className="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-[#F04639] focus:border-[#F04639]"
+                                autoComplete="current-password"
+                                onChange={(e) => setData('password', e.target.value)}
+                            />
+                            <InputError message={errors.password} className="mt-2" />
+                        </div>
+
+                        {/* Remember Me */}
+                        <div className="flex items-center">
+                            <Checkbox
+                                name="remember"
+                                checked={data.remember}
+                                onChange={(e) => setData('remember', e.target.checked)}
+                            />
+                            <span className="ml-2 text-sm text-gray-600">Remember me</span>
+                        </div>
+
+                        {/* reCAPTCHA */}
+                        <div className="mt-4">
+                            <ReCAPTCHA
+                                sitekey={import.meta.env.VITE_NOCAPTCHA_SITEKEY}
+                                onChange={(token) => setData('recaptcha_token', token)}
+                                ref={recaptchaRef}
+                            />
+                            <InputError message={errors.recaptcha_token} className="mt-2" />
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex flex-col sm:flex-row items-center justify-between mt-6 gap-4">
+                            {canResetPassword && (
+                                <Link
+                                    href={route('password.request')}
+                                    className="text-sm text-[#690A32] hover:text-[#F04639] underline"
+                                >
+                                    Forgot your password?
+                                </Link>
+                            )}
+
+                            <PrimaryButton
+                                className="w-full sm:w-auto bg-[#F04639] hover:bg-[#E32373] text-white shadow-lg rounded-lg px-6 py-3"
+                                disabled={processing}
+                            >
+                                Log In
+                            </PrimaryButton>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </GuestLayout>
     );
 }
