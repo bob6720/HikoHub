@@ -1,17 +1,39 @@
 import Layout from '@/Layouts/MainLayout';
 import { router, Link } from '@inertiajs/react';
+import React, { useState } from 'react';
 
 export default function EventsList({ events }) {
     const params = new URLSearchParams(window.location.search);
     const q = params.get('q') ?? '';
 
+    const [date, setDate] = useState('');
+    const [search, setSearch] = useState('');
+
+    const filteredEvents = events.filter(event =>
+        event.event_name.toLowerCase().includes(search.toLowerCase()) && (
+            date ? event.event_date === date :true
+        )
+    )
+
     const handleSearch = (e) =>{
-    if (e.key === 'Enter') {
-        e.preventDefault(); // intercept default form submit
-        const url = updateParams('q', e.target.value); // get url with params
-        router.visit(url); // let inertia handle navigation
+        if (e.key === 'Enter') {
+            e.preventDefault(); // intercept default form submit
+            const url = updateParams('q', e.target.value); // get url with params
+            router.visit(url); // let inertia handle navigation
+        }
     }
-    }
+
+    // Helper: update query string with new filters (removes unused + resets page)
+    // const updateParams = (key, value) => {
+    //     const p = new URLSearchParams(params);
+
+    //     if (value === '' || value == null) {
+    //     p.delete(key);
+    //     } else {p.set(key, value);}
+
+    //     p.delete('page'); // reset pagination
+    //     return `/events-list?${p.toString()}`; // returns URL with updated params
+    // };
 
     // Clears the editing event info meu
     function clearInfo() {
@@ -20,19 +42,26 @@ export default function EventsList({ events }) {
 
   return (
     <Layout>
+        {/* Date picker */}
+        <input type="date" value={date}
+         onChange={e => setDate(e.target.value)} className="w-full max-w-2xl h-12 rounded-full border-[#E32373] bg-[#F9FAFB] px-5 text-base placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#E32373] focus:border-[#E32373]"/>
+        
+        {/* Search Bar */}
         <input type="search" name="q" placeholder="Search.." defaultValue={q} className="w-full max-w-2xl h-12 rounded-full border-[#E32373] bg-[#F9FAFB] px-5 text-base placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#E32373] focus:border-[#E32373]" onKeyDown={handleSearch}/>
         
         {/* Table to display the event information in */}
         <table>
+            {/* Event headers */}
             <thead style={styles.th}>
-                <th>Event Date</th>
-                <th>Name</th>
+                <th>Date</th>
+                <th>Event</th>
                 <th>Organiser</th>
                 <th>Start Time</th>
                 <th>Contact</th>
             </thead>
             <tbody>
-                {events.map((event) => (
+                {/* Display all the events with filter applied */}
+                {filteredEvents.map((event) => (
                     <tr key={event.id}>
                         <td style={styles.td}>{event.event_date}</td>
                         <td style={styles.td}>{event.event_name}</td>
@@ -41,6 +70,9 @@ export default function EventsList({ events }) {
                         <td style={styles.td}>{event.contact_number}</td>
                     </tr>
                 ))}
+                {filteredEvents.length === 0 && (
+                    <p>No events Found</p>
+                )}
             </tbody>
         </table>
 
