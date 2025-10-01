@@ -1,202 +1,428 @@
-import React from 'react';
-import Layout from '@/Layouts/MainLayout'; 
+import React, { useState } from "react";
+import Layout from "@/Layouts/MainLayout";
 import "../../css/booking.css";
+import axios from "axios";
 
 export default function Booking() {
-	return (
-		<Layout>
-			<h1>Book Your Event Space</h1>
+  const initialState = {
+    event_name: "",
+    organiser: "",
+    business: "",
+    contact_number: "",
+    contact_email: "",
+    event_date: "",
+    start_time: "",
+    end_time: "",
+    number_of_people: "",
+    parking: "",
+    access_required: "",
+    aircon_time: "",
+    catering_required: "",
+    caterer: "",
+    catering_organiser: "",
+    alcohol: "",
+    catering_time_required: "",
+    catering_gl_code: "",
+    dietary_requirements: "",
+    wants_equipment: "",
+    av_equipment: "",
+    chairs: "",
+    tables: "",
+    displays: "",
+    marketing_signage: "",
+    equipment_gl_code: "",
+    wants_extras: "",
+    boards: "",
+    furniture: "",
+    comms: "",
+    for_visitors: "",
+    music: "",
+    arriving: "",
+  };
 
-			{/* Box 1: Client Details */}
-			<h2 >Client Details</h2>
-			<div className="client-details-box">
-				<div className="form-row">
-					<label>Event Name:</label>
-					<input type="text" name="event_name" placeholder="Type Event Name" />
-				</div>
-				<div className="form-row">
-					<label>Organiser:</label>
-					<input type="text" name="organiser" placeholder="Type Organiser Name" />
-				</div>
-				<div className="form-row">
-					<label>Business:</label>
-					<input type="text" name="business" placeholder="Type Business Name" />
-				</div>
-				<div className="form-row">
-					<label>Contact Number:</label>
-					<input type="tel" name="contact_number" placeholder="123-456-7890" />
-				</div>
-				<div className="form-row">
-					<label>Contact Email:</label>
-					<input type="email" name="contact_email" placeholder="example@email.com" />
-				</div>
-				<div className="form-row">
-					<label>Event Date:</label>
-					<input type="date" name="event_date" />
-				</div>
-				<div className="form-row">
-					<label>Start Time:</label>
-					<input type="time" name="start_time" />
-				</div>
-				<div className="form-row">
-					<label>End Time:</label>
-					<input type="time" name="end_time" />
-				</div>
-				<div className="form-row">
-					<label>Number of People:</label>
-					<input type="number" name="number_of_people" placeholder="e.g. 50" />
-				</div>
-			</div>
+  const [formData, setFormData] = useState(initialState);
 
-			{/* Box 2: Access & Facilities */}
-			<h2 className="text-2xl font-bold mb-4 mt-8">Access & Facilities</h2>
-			<div className="client-details-box">
-				<div className="form-row">
-					<label>Parking:</label>
-					<select name="parking">
-						<option value="">-- Select --</option>
-						<option value="yes">Yes</option>
-						<option value="no">No</option>
-					</select>
-				</div>
-				<div className="form-row">
-					<label>Access Required:</label>
-					<select name="access_required">
-						<option value="">-- Select --</option>
-						<option value="yes">Yes</option>
-						<option value="no">No</option>
-					</select>
-				</div>
-				<div className="form-row">
-					<label>Aircon Time:</label>
-					<input type="text" name="aircon_time" placeholder="e.g. 9am - 5pm" />
-				</div>
-			</div>
+  // update state when inputs change
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-			{/* Box 3: Catering */}
-			<h2 className="text-2xl font-bold mb-4 mt-8">Catering</h2>
-			<div className="client-details-box">
-				<div className="form-row">
-					<label>Catering Required:</label>
-					<input type="text" name="catering_required" placeholder="Specify requirements" />
-				</div>
-				<div className="form-row">
-					<label>Caterer:</label>
-					<input type="text" name="caterer" placeholder="Type Caterer Name" />
-				</div>
-				<div className="form-row">
-					<label>Organiser:</label>
-					<input type="text" name="catering_organiser" placeholder="Who is organising the catering?" />
-				</div>
-				<div className="form-row">
-					<label>Alcohol:</label>
-					<select name="alcohol">
-						<option value="">-- Select --</option>
-						<option value="yes">Yes</option>
-						<option value="no">No</option>
-					</select>
-				</div>
-				<div className="form-row">
-					<label>Time Required:</label>
-					<input type="text" name="catering_time_required" placeholder="e.g. 6pm - 8pm" />
-				</div>
-				<div className="form-row">
-					<label>GL Code:</label>
-					<input type="text" name="catering_gl_code" placeholder="Enter GL code" />
-				</div>
-				<div className="form-row">
-					<label>Dietary Requirements:</label>
-					<input type="text" name="dietary_requirements" placeholder="List dietary needs" />
-				</div>
-			</div>
+  // submit form
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("Submitting form data:", formData);
 
-			{/* Box 4: Equipment */}
-			<h2 className="text-2xl font-bold mb-4 mt-8">Equipment</h2>
-			<div className="client-details-box">
-				<div className="form-row">
-					<label>Wants Equipment:</label>
-					<select name="wants_equipment">
-						<option value="">-- Select --</option>
-						<option value="yes">Yes</option>
-						<option value="no">No</option>
-					</select>
-				</div>
-				<div className="form-row">
-					<label>AV Equipment:</label>
-					<input type="text" name="av_equipment" placeholder="Projector, Microphones..." />
-				</div>
-				<div className="form-row">
-					<label>Chairs:</label>
-					<input type="number" name="chairs" placeholder="Number of Chairs" />
-				</div>
-				<div className="form-row">
-					<label>Tables:</label>
-					<input type="number" name="tables" placeholder="Number of Tables" />
-				</div>
-				<div className="form-row">
-					<label>Displays:</label>
-					<input type="text" name="displays" placeholder="Specify Displays" />
-				</div>
-				<div className="form-row">
-					<label>Marketing Signage:</label>
-					<input type="text" name="marketing_signage" placeholder="Banners, Posters..." />
-				</div>
-				<div className="form-row">
-					<label>Equipment GL Code:</label>
-					<input type="text" name="equipment_gl_code" placeholder="Enter GL code" />
-				</div>
-			</div>
+    try {
+      const res = await axios.post("http://hikohub.test/bookings", formData, {
+        headers: { "Content-Type": "application/json" },
+      });
+      alert("Booking submitted successfully!");
+      console.log("Server response:", res.data);
+      setFormData(initialState); // reset form
+    } catch (err) {
+      console.error("Booking error:", err.response || err);
+      alert("Error submitting booking. Check console for details.");
+    }
+  };
 
-			{/* Box 5: Extras */}
-			<h2 className="text-2xl font-bold mb-4 mt-8">Extras</h2>
-			<div className="client-details-box">
-				<div className="form-row">
-					<label>Wants Extras:</label>
-					<select name="wants_extras">
-						<option value="">-- Select --</option>
-						<option value="yes">Yes</option>
-						<option value="no">No</option>
-					</select>
-				</div>
-				<div className="form-row">
-					<label>Boards:</label>
-					<input type="text" name="boards" placeholder="Whiteboards, Noticeboards..." />
-				</div>
-				<div className="form-row">
-					<label>Furniture:</label>
-					<input type="text" name="furniture" placeholder="Sofas, Stools..." />
-				</div>
-				<div className="form-row">
-					<label>Comms:</label>
-					<input type="text" name="comms" placeholder="WiFi, Phone, etc." />
-				</div>
-				<div className="form-row">
-					<label>For Visitors:</label>
-					<select name="for_visitors">
-						<option value="">-- Select --</option>
-						<option value="yes">Yes</option>
-						<option value="no">No</option>
-					</select>
-				</div>
-				<div className="form-row">
-					<label>Music:</label>
-					<select name="music">
-						<option value="">-- Select --</option>
-						<option value="yes">Yes</option>
-						<option value="no">No</option>
-					</select>
-				</div>
-				<div className="form-row">
-					<label>Arriving:</label>
-					<input type="text" name="arriving" placeholder="Arrival details" />
-				</div>
-			</div>
-      {/* Submit Button */}
-				<div className="form-submit">
-					<button type="submit" className="submit-btn">
-						Submit Booking
-					</button>
-				</div>
-		</Layout>
-	);
+  return (
+    <Layout>
+      <h1>Book Your Event Space</h1>
+      {/* ✅ Removed unsafe action attribute */}
+      <form onSubmit={handleSubmit}>
+        {/* Box 1: Client Details */}
+        <h2>Client Details</h2>
+        <div className="client-details-box">
+          <div className="form-row">
+            <label>Event Name:</label>
+            <input
+              type="text"
+              name="event_name"
+              value={formData.event_name}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Organiser:</label>
+            <input
+              type="text"
+              name="organiser"
+              value={formData.organiser}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Business:</label>
+            <input
+              type="text"
+              name="business"
+              value={formData.business}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Contact Number:</label>
+            <input
+              type="tel"
+              name="contact_number"
+              value={formData.contact_number}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Contact Email:</label>
+            <input
+              type="email"
+              name="contact_email"
+              value={formData.contact_email}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Event Date:</label>
+            <input
+              type="date"
+              name="event_date"
+              value={formData.event_date}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Start Time:</label>
+            <input
+              type="time"
+              name="start_time"
+              value={formData.start_time}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>End Time:</label>
+            <input
+              type="time"
+              name="end_time"
+              value={formData.end_time}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Number of People:</label>
+            <input
+              type="number"
+              name="number_of_people"
+              value={formData.number_of_people}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        {/* Box 2: Access & Facilities */}
+        <h2>Access & Facilities</h2>
+        <div className="client-details-box">
+          <div className="form-row">
+            <label>Parking:</label>
+            <select
+              name="parking"
+              value={formData.parking}
+              onChange={handleChange}
+            >
+              <option value="">-- Select --</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <div className="form-row">
+            <label>Access Required:</label>
+            <select
+              name="access_required"
+              value={formData.access_required}
+              onChange={handleChange}
+            >
+              <option value="">-- Select --</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <div className="form-row">
+            <label>Aircon Time:</label>
+            <input
+              type="time"
+              name="aircon_time"
+              value={formData.aircon_time}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        {/* Box 3: Catering */}
+        <h2>Catering</h2>
+        <div className="client-details-box">
+          <div className="form-row">
+            <label>Catering Required:</label>
+            <input
+              type="text"
+              name="catering_required"
+              value={formData.catering_required}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Caterer:</label>
+            <input
+              type="text"
+              name="caterer"
+              value={formData.caterer}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Organiser:</label>
+            <input
+              type="text"
+              name="catering_organiser"
+              value={formData.catering_organiser}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Alcohol:</label>
+            <select
+              name="alcohol"
+              value={formData.alcohol}
+              onChange={handleChange}
+            >
+              <option value="">-- Select --</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <div className="form-row">
+            <label>Time Required:</label>
+            <input
+              type="text"
+              name="catering_time_required"
+              value={formData.catering_time_required}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>GL Code:</label>
+            <input
+              type="text"
+              name="catering_gl_code"
+              value={formData.catering_gl_code}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Dietary Requirements:</label>
+            <input
+              type="text"
+              name="dietary_requirements"
+              value={formData.dietary_requirements}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        {/* Box 4: Equipment */}
+        <h2>Equipment</h2>
+        <div className="client-details-box">
+          <div className="form-row">
+            <label>Wants Equipment:</label>
+            <select
+              name="wants_equipment"
+              value={formData.wants_equipment}
+              onChange={handleChange}
+            >
+              <option value="">-- Select --</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <div className="form-row">
+            <label>AV Equipment:</label>
+            <input
+              type="text"
+              name="av_equipment"
+              value={formData.av_equipment}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Chairs:</label>
+            <input
+              type="number"
+              name="chairs"
+              value={formData.chairs}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Tables:</label>
+            <input
+              type="number"
+              name="tables"
+              value={formData.tables}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Displays:</label>
+            <input
+              type="text"
+              name="displays"
+              value={formData.displays}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Marketing Signage:</label>
+            <input
+              type="text"
+              name="marketing_signage"
+              value={formData.marketing_signage}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Equipment GL Code:</label>
+            <input
+              type="text"
+              name="equipment_gl_code"
+              value={formData.equipment_gl_code}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        {/* Box 5: Extras */}
+        <h2>Extras</h2>
+        <div className="client-details-box">
+          <div className="form-row">
+            <label>Wants Extras:</label>
+            <select
+              name="wants_extras"
+              value={formData.wants_extras}
+              onChange={handleChange}
+            >
+              <option value="">-- Select --</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <div className="form-row">
+            <label>Boards:</label>
+            <input
+              type="text"
+              name="boards"
+              value={formData.boards}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Furniture:</label>
+            <input
+              type="text"
+              name="furniture"
+              value={formData.furniture}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>Comms:</label>
+            <input
+              type="text"
+              name="comms"
+              value={formData.comms}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-row">
+            <label>For Visitors:</label>
+            <select
+              name="for_visitors"
+              value={formData.for_visitors}
+              onChange={handleChange}
+            >
+              <option value="">-- Select --</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <div className="form-row">
+            <label>Music:</label>
+            <select
+              name="music"
+              value={formData.music}
+              onChange={handleChange}
+            >
+              <option value="">-- Select --</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <div className="form-row">
+            <label>Arriving:</label>
+            <input
+              type="text"
+              name="arriving"
+              value={formData.arriving}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <div className="form-submit">
+          <button type="submit" className="submit-btn">
+            Submit Booking
+          </button>
+        </div>
+      </form>
+    </Layout>
+  );
 }
