@@ -1,0 +1,62 @@
+.client-details-box {
+    max-width: 600px;
+    margin: 20px auto;
+    background: #F24E40; /* dark background */
+    padding: 20px;border-radius: 8px;
+}
+
+h1 {
+    color: #F24E40;
+    font-size: 3rem; 
+    text-align: left;
+    font-weight: bold;
+}
+
+h2 {
+    color: #8A2BE2;
+    padding-left: 50px;
+    font-size: 2rem;   /* adjust to be close to h1 (default h1 ~2.5rem) */
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 10px;
+}
+
+
+.form-row {
+  display: grid;
+  grid-template-columns: 150px 1fr; /* label fixed, input expands */
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.form-row label {
+  color: white;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.form-row input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.submit-btn {
+	width: 100%;
+	padding: 16px;
+	font-size: 20px;
+	font-weight: bold;
+	background-color: #8A2BE2; 
+	color: white;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+	margin-top: 20px;
+}
+
+.submit-btn:hover {
+	background-color: #a5144e; /* lighter hover shade */
+}
+
