@@ -63,6 +63,13 @@ Route::get('/calendar', function () {
     return Inertia::render('Calendar');
 })->name('calendar');
 
+Route::get('/events-list', function () {
+    $events = Event::all();
+    return Inertia::render('EventsList', [
+        'events' => $events
+    ]);
+})->name('events-list');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
