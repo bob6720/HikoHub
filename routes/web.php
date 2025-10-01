@@ -1,5 +1,7 @@
 <?php
+
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\BookingController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -8,57 +10,53 @@ use Illuminate\Http\Request;
 
 // Home: list upcoming events with optional search/filters; render Events page
 Route::get('/', function (Request $request) {
-    // Query params (all optional)
-    $q         = trim((string) $request->input('q', ''));          
+    $q       = trim((string) $request->input('q', ''));          
     $company = trim((string) $request->input('company', ''));  
-    $when      = trim((string) $request->input('when', ''));       
-    $perPage   = 9; 
+    $when    = trim((string) $request->input('when', ''));       
+    $perPage = 9; 
 
-    // Base query: upcoming events ordered by soonest
     $query = Event::query()
-        ->where('event_date', '>', now()->toDateString()) // only future-dated events
-        ->orderBy('event_date', 'asc'); // soonest first
+        ->where('event_date', '>', now()->toDateString())
+        ->orderBy('event_date', 'asc');
 
-    // search across name or organiser 
     if ($q !== '') {
         $query->where(function ($s) use ($q) {
             $s->where('event_name', 'like', "%{$q}%")
-              ->orWhere('organiser',  'like', "%{$q}%");
+              ->orWhere('organiser', 'like', "%{$q}%");
         });
     }
-    // Company filter (ignore empty/null)
-    if ($company !== '' && $company !== null){
-        $query->where('company', $company); 
-    }
-    // Time buckets
-    if ($when == 'week') {
-        $query->whereBetween('event_date', [now()->startOfWeek(), now()->endOfWeek()]); // current week
-    } elseif ($when == 'month') {
-        $query->whereBetween('event_date', [now()->startOfMonth(), now()->endOfMonth()]); // current month
+
+    if ($company !== '' && $company !== null) {
+        $query->where('company', $company);
     }
 
-    // Execute with pagination: keep current filters in the links
+    if ($when == 'week') {
+        $query->whereBetween('event_date', [now()->startOfWeek(), now()->endOfWeek()]);
+    } elseif ($when == 'month') {
+        $query->whereBetween('event_date', [now()->startOfMonth(), now()->endOfMonth()]);
+    }
+
     $events = $query->simplePaginate($perPage)->withQueryString();
 
-    // Build company options for the dropdown 
     $companies = Event::distinct()
         ->orderBy('company')
         ->pluck('company');
     
-    // Render page component with paginator + organiser list
-    return Inertia::render('Events', 
-    [   
-        'events' => $events,    // paginator object
-        'companies' => $companies, // names for dropdown
+    return Inertia::render('Events', [   
+        'events'    => $events,
+        'companies' => $companies,
     ]);
 });
 
-
+// Booking form page (renders Booking.vue/Booking.jsx)
 Route::get('/booking', function () {
     return Inertia::render('Booking');
 })->name('booking');
 
+// ✅ Booking API endpoint (this is where your React form submits)
+Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
 
+// Calendar page
 Route::get('/calendar', function () {
     return Inertia::render('Calendar');
 })->name('calendar');
