@@ -42,6 +42,11 @@ export default function Booking() {
 
   const [formData, setFormData] = useState(initialState);
 
+  // calculate tomorrow for date min
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minDate = tomorrow.toISOString().split("T")[0];
+
   // update state when inputs change
   const handleChange = (e) => {
     setFormData({
@@ -108,8 +113,9 @@ export default function Booking() {
           <div className="form-row">
             <label>Contact Number:</label>
             <input
-              type="phone"
+              type="tel"
               name="contact_number"
+              placeholder="123-456-7890"
               value={formData.contact_number}
               onChange={handleChange}
               required
@@ -132,6 +138,7 @@ export default function Booking() {
               name="event_date"
               value={formData.event_date}
               onChange={handleChange}
+              min={minDate} // tomorrow onwards
               required
             />
           </div>
@@ -142,6 +149,8 @@ export default function Booking() {
               name="start_time"
               value={formData.start_time}
               onChange={handleChange}
+              min="09:00"
+              max="16:00"
               required
             />
           </div>
@@ -152,6 +161,8 @@ export default function Booking() {
               name="end_time"
               value={formData.end_time}
               onChange={handleChange}
+              min={formData.start_time || "10:00"} // must be after start
+              max="17:00"
               required
             />
           </div>
@@ -162,6 +173,8 @@ export default function Booking() {
               name="number_of_people"
               value={formData.number_of_people}
               onChange={handleChange}
+              min="1"
+              max="500"
               required
             />
           </div>
