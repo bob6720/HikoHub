@@ -55,18 +55,49 @@ export default function Booking() {
     });
   };
 
+  // helper: build time string from hour + minute
+  const setTime = (field, hour, minute) => {
+    if (!hour && !minute) {
+      setFormData({ ...formData, [field]: "" });
+      return;
+    }
+    const h = (hour || "09").padStart(2, "0");
+    const m = minute || "00";
+    setFormData({ ...formData, [field]: `${h}:${m}` });
+  };
+
   // submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting form data:", formData);
+
+    if (
+      formData.start_time &&
+      formData.end_time &&
+      formData.end_time <= formData.start_time
+    ) {
+      alert("End time must be later than start time.");
+      return;
+    }
 
     try {
+      const check = await axios.post("http://hikohub.test/check-booking", {
+        event_date: formData.event_date,
+        start_time: formData.start_time,
+        end_time: formData.end_time,
+      });
+
+      if (check.data.overlap) {
+        alert("This time slot is already booked. Please choose another.");
+        return;
+      }
+
       const res = await axios.post("http://hikohub.test/bookings", formData, {
         headers: { "Content-Type": "application/json" },
       });
-      alert("Booking submitted successfully!");
+
+      alert("Booking submitted successfully.");
       console.log("Server response:", res.data);
-      setFormData(initialState); // reset form
+      setFormData(initialState);
     } catch (err) {
       console.error("Booking error:", err.response || err);
       alert("Error submitting booking. Check console for details.");
@@ -138,34 +169,103 @@ export default function Booking() {
               name="event_date"
               value={formData.event_date}
               onChange={handleChange}
-              min={minDate} // tomorrow onwards
+              min={minDate}
               required
             />
           </div>
+
+          {/* Start Time */}
           <div className="form-row">
             <label>Start Time:</label>
-            <input
-              type="time"
-              name="start_time"
-              value={formData.start_time}
-              onChange={handleChange}
-              min="09:00"
-              max="16:00"
-              required
-            />
+            <div style={{ display: "flex", gap: "5px" }}>
+              <select
+                value={formData.start_time.split(":")[0] || ""}
+                onChange={(e) =>
+                  setTime(
+                    "start_time",
+                    e.target.value,
+                    formData.start_time.split(":")[1]
+                  )
+                }
+                required
+              >
+                <option value="">-- Hour --</option>
+                {["09", "10", "11", "12", "13", "14", "15", "16", "17"].map(
+                  (h) => (
+                    <option key={h} value={h}>
+                      {h}
+                    </option>
+                  )
+                )}
+              </select>
+
+              <select
+                value={formData.start_time.split(":")[1] || ""}
+                onChange={(e) =>
+                  setTime(
+                    "start_time",
+                    formData.start_time.split(":")[0],
+                    e.target.value
+                  )
+                }
+                required
+              >
+                <option value="">-- Min --</option>
+                {["00", "15", "30", "45"].map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+
+          {/* End Time */}
           <div className="form-row">
             <label>End Time:</label>
-            <input
-              type="time"
-              name="end_time"
-              value={formData.end_time}
-              onChange={handleChange}
-              min={formData.start_time || "10:00"} // must be after start
-              max="17:00"
-              required
-            />
+            <div style={{ display: "flex", gap: "5px" }}>
+              <select
+                value={formData.end_time.split(":")[0] || ""}
+                onChange={(e) =>
+                  setTime(
+                    "end_time",
+                    e.target.value,
+                    formData.end_time.split(":")[1]
+                  )
+                }
+                required
+              >
+                <option value="">-- Hour --</option>
+                {["09", "10", "11", "12", "13", "14", "15", "16", "17"].map(
+                  (h) => (
+                    <option key={h} value={h}>
+                      {h}
+                    </option>
+                  )
+                )}
+              </select>
+
+              <select
+                value={formData.end_time.split(":")[1] || ""}
+                onChange={(e) =>
+                  setTime(
+                    "end_time",
+                    formData.end_time.split(":")[0],
+                    e.target.value
+                  )
+                }
+                required
+              >
+                <option value="">-- Min --</option>
+                {["00", "15", "30", "45"].map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+
           <div className="form-row">
             <label>Number of People:</label>
             <input
