@@ -71,7 +71,6 @@ export default function Booking() {
   return (
     <Layout>
       <h1>Book Your Event Space</h1>
-      {/* ✅ Removed unsafe action attribute */}
       <form onSubmit={handleSubmit}>
         {/* Box 1: Client Details */}
         <h2>Client Details</h2>
@@ -83,6 +82,7 @@ export default function Booking() {
               name="event_name"
               value={formData.event_name}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="form-row">
@@ -92,6 +92,7 @@ export default function Booking() {
               name="organiser"
               value={formData.organiser}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="form-row">
@@ -101,15 +102,17 @@ export default function Booking() {
               name="business"
               value={formData.business}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="form-row">
             <label>Contact Number:</label>
             <input
-              type="tel"
+              type="phone"
               name="contact_number"
               value={formData.contact_number}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="form-row">
@@ -119,6 +122,7 @@ export default function Booking() {
               name="contact_email"
               value={formData.contact_email}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="form-row">
@@ -128,6 +132,7 @@ export default function Booking() {
               name="event_date"
               value={formData.event_date}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="form-row">
@@ -137,6 +142,7 @@ export default function Booking() {
               name="start_time"
               value={formData.start_time}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="form-row">
@@ -146,6 +152,7 @@ export default function Booking() {
               name="end_time"
               value={formData.end_time}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="form-row">
@@ -155,6 +162,7 @@ export default function Booking() {
               name="number_of_people"
               value={formData.number_of_people}
               onChange={handleChange}
+              required
             />
           </div>
         </div>
