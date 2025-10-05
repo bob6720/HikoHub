@@ -3,6 +3,12 @@ import Layout from "@/Layouts/MainLayout";
 import "../../css/booking.css";
 import axios from "axios";
 
+// Laravel CSRF protection for web routes
+axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
+axios.defaults.headers.common["X-CSRF-TOKEN"] = document
+  .querySelector('meta[name="csrf-token"]')
+  ?.getAttribute("content");
+
 export default function Booking() {
   const initialState = {
     event_name: "",
@@ -41,13 +47,14 @@ export default function Booking() {
   };
 
   const [formData, setFormData] = useState(initialState);
+  const [loading, setLoading] = useState(false);
 
-  // calculate tomorrow for date min
+  // Calculate tomorrow for date min
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().split("T")[0];
 
-  // update state when inputs change
+  // Update state when inputs change
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -55,7 +62,7 @@ export default function Booking() {
     });
   };
 
-  // helper: build time string from hour + minute
+  // Helper: build time string from hour + minute
   const setTime = (field, hour, minute) => {
     if (!hour && !minute) {
       setFormData({ ...formData, [field]: "" });
@@ -66,32 +73,38 @@ export default function Booking() {
     setFormData({ ...formData, [field]: `${h}:${m}` });
   };
 
-  // submit form
+  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      formData.start_time &&
-      formData.end_time &&
-      formData.end_time <= formData.start_time
-    ) {
+    if (!formData.start_time || !formData.end_time) {
+      alert("Please select both start and end time.");
+      return;
+    }
+
+    if (formData.end_time <= formData.start_time) {
       alert("End time must be later than start time.");
       return;
     }
 
+    setLoading(true);
+
     try {
-      const check = await axios.post("http://hikohub.test/check-booking", {
+      // Step 1: check for overlap
+      const check = await axios.post("/check-booking", {
         event_date: formData.event_date,
         start_time: formData.start_time,
         end_time: formData.end_time,
       });
 
-      if (check.data.overlap) {
-        alert("This time slot is already booked. Please choose another.");
+      if (check.data.conflict) {
+        alert("This time slot is already booked. Please choose another time.");
+        setLoading(false);
         return;
       }
 
-      const res = await axios.post("http://hikohub.test/bookings", formData, {
+      // Step 2: create booking
+      const res = await axios.post("/bookings", formData, {
         headers: { "Content-Type": "application/json" },
       });
 
@@ -100,8 +113,10 @@ export default function Booking() {
       setFormData(initialState);
     } catch (err) {
       console.error("Booking error:", err.response || err);
-      alert("Error submitting booking. Check console for details.");
+      alert("Error submitting booking. Please check console for details.");
     }
+
+    setLoading(false);
   };
 
   return (
@@ -121,6 +136,7 @@ export default function Booking() {
               required
             />
           </div>
+
           <div className="form-row">
             <label>Organiser:</label>
             <input
@@ -131,6 +147,7 @@ export default function Booking() {
               required
             />
           </div>
+
           <div className="form-row">
             <label>Business:</label>
             <input
@@ -141,6 +158,7 @@ export default function Booking() {
               required
             />
           </div>
+
           <div className="form-row">
             <label>Contact Number:</label>
             <input
@@ -152,6 +170,7 @@ export default function Booking() {
               required
             />
           </div>
+
           <div className="form-row">
             <label>Contact Email:</label>
             <input
@@ -162,6 +181,7 @@ export default function Booking() {
               required
             />
           </div>
+
           <div className="form-row">
             <label>Event Date:</label>
             <input
@@ -537,10 +557,10 @@ export default function Booking() {
           </div>
         </div>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <div className="form-submit">
-          <button type="submit" className="submit-btn">
-            Submit Booking
+          <button type="submit" className="submit-btn" disabled={loading}>
+            {loading ? "Submitting..." : "Submit Booking"}
           </button>
         </div>
       </form>

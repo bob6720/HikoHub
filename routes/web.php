@@ -53,8 +53,12 @@ Route::get('/booking', function () {
     return Inertia::render('Booking');
 })->name('booking');
 
-// ✅ Booking API endpoint (this is where your React form submits)
+// Booking API endpoint (this is where your React form submits)
 Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+
+// Checks existing bookings so that when a new booking is made it doesnt conflict with existing bookings
+Route::post('/check-booking', [BookingController::class, 'checkBooking'])->name('bookings.check');
+
 
 // Calendar page
 Route::get('/calendar', function () {
