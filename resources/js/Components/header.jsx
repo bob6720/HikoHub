@@ -1,50 +1,82 @@
 import React from "react";
 import logo from "../../images/HIKOHub.svg";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
-import { Link } from '@inertiajs/react';
+import { Link, usePage, router } from "@inertiajs/react";
 
-export default function Header({ isAuthenticated, onLogout }) {
+export default function Header({ onLogout }) {
+  const { auth } = usePage().props;
+  const isAuthenticated = !!auth?.user;
+  const handleLogout = () => {
+    router.post(route("logout"));
+  };
+
   return (
     <nav className="rounded-b-lg sticky top-0 z-50 w-screen h-32 bg-[#690A32] bg-opacity-95 shadow-inner backdrop-blur-lg py-10">
-      <div className="h-16 px-4 flex items-center w-full">
-      
-        {/* Logo */}
-        <div className="flex-1 flex items-center justify-start gap-3">
-          <Link href="/" className="group">
+      <div className="h-16 px-4 flex items-center justify-between w-full">
+
+        {/* Left: Logo (keep full size) */}
+        <div className="flex items-center justify-start h-full">
+          <Link href="/" className="group h-full">
             <img
               src={logo}
               alt="Logo"
-              className="w-full h-full rounded-full transition-transform duration-300 ease-in-out group-hover:scale-110"
+              className="h-full w-auto rounded-full transition-transform duration-300 ease-in-out group-hover:scale-110"
             />
           </Link>
         </div>
 
-        {/* Center column */}
-        <div className="flex-1 flex items-center justify-center gap-6"></div>
-
-        {/* Right column */}
-        <div className="flex-1 flex items-center justify-end gap-4"> 
+        {/* Center: Navigation links */}
+        <div className="flex items-center justify-center gap-10 text-lg font-semibold">
           {isAuthenticated ? (
-            <div className="font-semibold text-purple-400">
-              <Link href="/booking" className="hover:text-pink-400 neon-text transition">Bookings</Link>
-              <Link href="/calendar" className="hover:text-pink-400 neon-text transition">Calendar</Link>
-              <button
-                onClick={onLogout}
-                className="hover:text-pink-400 neon-text transition text-left"
-                type="button"
+            <>
+              <Link
+                href="/booking"
+                className="text-purple-200 hover:text-pink-400 transition"
               >
-                Log Out
-              </button>
-            </div>
-          ) : (
-            // Guest
-            <div className="px-10">
-              <Link href={route('login')} className="group">
-                <UserCircleIcon className="w-20 h-20 text-[#F7C5C4] transition-transform duration-300 ease-in-out group-hover:scale-110"/>
+                Bookings
               </Link>
-            </div>
+              <Link
+                href="/calendar"
+                className="text-purple-200 hover:text-pink-400 transition"
+              >
+                Calendar
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="https://www.hikohub.co.nz/#about-us"
+                className="text-purple-200 hover:text-pink-400 transition"
+              >
+                About
+              </Link>
+              <Link
+                href="https://www.hikohub.co.nz/#contact-us"
+                className="text-purple-200 hover:text-pink-400 transition"
+              >
+                Contact
+              </Link>
+            </>
           )}
         </div>
+
+        {/* Right: Auth icon / Logout button */}
+        <div className="flex items-center justify-end h-full">
+          {isAuthenticated ? (
+            <button
+              onClick={handleLogout}
+              type="button"
+              className="text-purple-200 hover:text-pink-400 font-semibold transition"
+            >
+              Log Out
+            </button>
+          ) : (
+            <Link href={route("login")} className="group px-10">
+              <UserCircleIcon className="w-20 h-20 text-[#F7C5C4] transition-transform duration-300 ease-in-out group-hover:scale-110" />
+            </Link>
+          )}
+        </div>
+
       </div>
     </nav>
   );
