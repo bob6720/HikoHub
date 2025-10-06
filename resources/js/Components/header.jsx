@@ -44,14 +44,16 @@ export default function Header({ onLogout }) {
             </>
           ) : (
             <>
-              <Link
-                href="https://www.hikohub.co.nz/#about-us"
+              <a
+                href="https://www.hikohub.co.nz/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-purple-200 hover:text-pink-400 transition"
               >
                 About
-              </Link>
+              </a>
               <Link
-                href="https://www.hikohub.co.nz/#contact-us"
+                href="/contact"
                 className="text-purple-200 hover:text-pink-400 transition"
               >
                 Contact
