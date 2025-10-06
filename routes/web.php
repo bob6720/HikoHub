@@ -61,12 +61,20 @@ Route::get('/calendar', function () {
     return Inertia::render('Calendar');
 })->name('calendar');
 
+// Events List Page
 Route::get('/events-list', function () {
     $events = Event::all();
     return Inertia::render('EventsList', [
         'events' => $events
     ]);
 })->name('events-list');
+
+// Deleting an event
+Route::delete('/events/{id}', function($id) {
+    $event =Event::findOrFail($id);
+    $event->delete();
+    return response()->json(['success' => true]);
+});
 
 
 Route::middleware('auth')->group(function () {

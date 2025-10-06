@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 import "../../css/booking.css";
 
 export default function EventsList({ events }) {
+
+    console.log(events)
+
     const params = new URLSearchParams(window.location.search);
     const q = params.get('q') ?? '';
 
@@ -26,6 +29,19 @@ export default function EventsList({ events }) {
 
     // State to hold the event that was chosen from the table
     const [eventPicked, setEventPicked] = useState(null);
+
+    // Deleting an event (send request to server)
+    function deleteEvent(id) {
+
+        router.delete(`/events/${id}`, {
+            onSuccess: () => {
+                alert("Event deleted.")
+            },
+            onError: () => {
+                alert("Event failed to delete.")
+            }
+        })
+    }
 
   return (
     <Layout>
@@ -88,6 +104,14 @@ export default function EventsList({ events }) {
                     <p style={styles.p}>{eventPicked.contact_email}</p>
                     <label>Number of People:</label>
                     <p style={styles.p}>{eventPicked.number_of_people}</p>
+
+                    {/* Confirmation from user if they really want to delete the event. */}
+                    <button onClick={() => {
+                        if (window.confirm("Are you sure you want to delete this event?")) {
+                            deleteEvent(eventPicked.id)
+                        }
+                    }}>Delete Event</button>
+                
                 </div>
             </div>   
         ) : (
