@@ -23,18 +23,6 @@ export default function EventsList({ events }) {
         }
     }
 
-    // Helper: update query string with new filters (removes unused + resets page)
-    // const updateParams = (key, value) => {
-    //     const p = new URLSearchParams(params);
-
-    //     if (value === '' || value == null) {
-    //     p.delete(key);
-    //     } else {p.set(key, value);}
-
-    //     p.delete('page'); // reset pagination
-    //     return `/events-list?${p.toString()}`; // returns URL with updated params
-    // };
-
     // Clears the editing event info meu
     function clearInfo() {
         // TODO
@@ -47,17 +35,19 @@ export default function EventsList({ events }) {
          onChange={e => setDate(e.target.value)} className="w-full max-w-2xl h-12 rounded-full border-[#E32373] bg-[#F9FAFB] px-5 text-base placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#E32373] focus:border-[#E32373]"/>
         
         {/* Search Bar */}
-        <input type="search" name="q" placeholder="Search.." defaultValue={q} className="w-full max-w-2xl h-12 rounded-full border-[#E32373] bg-[#F9FAFB] px-5 text-base placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#E32373] focus:border-[#E32373]" onKeyDown={handleSearch}/>
+        <input type="search" value={search} onChange={e => setSearch(e.target.value)} name="q" placeholder="Search.." defaultValue={q} className="w-full max-w-2xl h-12 rounded-full border-[#E32373] bg-[#F9FAFB] px-5 text-base placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#E32373] focus:border-[#E32373]" onKeyDown={handleSearch}/>
         
         {/* Table to display the event information in */}
-        <table>
+        <table className="w-full m-6">
             {/* Event headers */}
             <thead style={styles.th}>
-                <th>Date</th>
-                <th>Event</th>
-                <th>Organiser</th>
-                <th>Start Time</th>
-                <th>Contact</th>
+                <tr>
+                    <th>Date</th>
+                    <th>Event</th>
+                    <th>Organiser</th>
+                    <th>Start Time</th>
+                    <th>Contact</th>
+                </tr>
             </thead>
             <tbody>
                 {/* Display all the events with filter applied */}
@@ -93,7 +83,7 @@ const styles = {
         textAlign: "left"
     },
     th: {
-        backgroundColor: "#d6d6d6ff",
-        padding: 40
+        backgroundColor: "#EC4899",
+        padding: 20
     }
 }
