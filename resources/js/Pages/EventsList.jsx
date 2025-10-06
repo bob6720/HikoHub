@@ -1,6 +1,7 @@
 import Layout from '@/Layouts/MainLayout';
 import { router, Link } from '@inertiajs/react';
 import React, { useState } from 'react';
+import "../../css/booking.css";
 
 export default function EventsList({ events }) {
     const params = new URLSearchParams(window.location.search);
@@ -23,10 +24,8 @@ export default function EventsList({ events }) {
         }
     }
 
-    // Clears the editing event info meu
-    function clearInfo() {
-        // TODO
-    }
+    // State to hold the event that was chosen from the table
+    const [eventPicked, setEventPicked] = useState(null);
 
   return (
     <Layout>
@@ -52,7 +51,7 @@ export default function EventsList({ events }) {
             <tbody>
                 {/* Display all the events with filter applied */}
                 {filteredEvents.map((event) => (
-                    <tr key={event.id}>
+                    <tr key={event.id} onClick={() => setEventPicked(event)}>
                         <td style={styles.td}>{event.event_date}</td>
                         <td style={styles.td}>{event.event_name}</td>
                         <td style={styles.td}>{event.organiser}</td>
@@ -65,16 +64,43 @@ export default function EventsList({ events }) {
                 )}
             </tbody>
         </table>
+        
+        {/* If an event is selected, display more event details */}
+        <h2>Event Details</h2>
+        {eventPicked ? (
+            
+            <div className="client-details-box">
+                <div className="form-row">
+                    {/* Display the event information in more depth */}
+                    <label>Event Name:</label>
+                    <p style={styles.p}>{eventPicked.event_name}</p>
+                    <label>Event Date:</label>
+                    <p style={styles.p}>{eventPicked.event_date}</p>
+                    <label>Organiser:</label>
+                    <p style={styles.p}>{eventPicked.organiser}</p>
+                    <label>Start Time:</label>
+                    <p style={styles.p}>{eventPicked.start_time}</p>
+                    <label>End Time:</label>
+                    <p style={styles.p}>{eventPicked.end_time}</p>
+                    <label>Contact:</label>
+                    <p style={styles.p}>{eventPicked.contact_number}</p>
+                    <label>Contact Email:</label>
+                    <p style={styles.p}>{eventPicked.contact_email}</p>
+                    <label>Number of People:</label>
+                    <p style={styles.p}>{eventPicked.number_of_people}</p>
+                </div>
+            </div>   
+        ) : (
+            <p>Click on an event to show more details</p>
+        )}
 
         {/* Create new event button */}
-        <Link href={clearInfo()} 
+        <Link href="/booking" 
             className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
             Create New Event
         </Link>
-        
     </Layout>
   )
-
 }
 
 const styles = {
@@ -85,5 +111,8 @@ const styles = {
     th: {
         backgroundColor: "#EC4899",
         padding: 20
+    },
+    p: {
+        textAlign: "left"
     }
 }
