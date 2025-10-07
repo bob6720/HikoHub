@@ -14,10 +14,9 @@ export default function EventsList({ events }) {
     const [search, setSearch] = useState('');
 
     const filteredEvents = events.filter(event =>
-        event.event_name.toLowerCase().includes(search.toLowerCase()) && (
-            date ? event.event_date === date :true
-        )
-    )
+        event.event_name.toLowerCase().includes(search.toLowerCase()) ||
+        event.organiser.toLowerCase().includes(search.toLowerCase()) && 
+        (date ? event.event_date === date :true))
 
     // For setting the order of the dates
     const [sortOrder, setSortOrder] = useState('ascending');
@@ -45,6 +44,8 @@ export default function EventsList({ events }) {
         router.delete(`/events/${id}`, {
             onSuccess: () => {
                 alert("Event deleted.")
+                // Clear the inputs
+                setEventPicked(null);
             },
             onError: () => {
                 alert("Event failed to delete.")
@@ -68,30 +69,32 @@ export default function EventsList({ events }) {
 
   return (
     <Layout>
-        {/* Button for changing date display order */}
-        <button onClick={() => setSortOrder(sortOrder === "ascending" ? "descending" : "ascending")}>
-            Sort by Date: {sortOrder === "Ascending" ? "Ascending" : "Descending"}
-        </button>
+        <h2>Events</h2>
 
+        {/* Side by side */}
+        <div className="flex gap-4 mb-4">
+
+            {/* Date picker */}
+            <input type="date" value={date}
+            onChange={e => setDate(e.target.value)} className="w-full max-w-2xl h-12 rounded-full border-[#E32373] bg-[#F9FAFB] px-5 text-base placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#E32373] focus:border-[#E32373]"/>
+            
+            {/* Search Bar */}
+            <input type="search" value={search} onChange={e => setSearch(e.target.value)} name="q" placeholder="Search.." defaultValue={q} className="w-full max-w-2xl h-12 rounded-full border-[#E32373] bg-[#F9FAFB] px-5 text-base placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#E32373] focus:border-[#E32373]" onKeyDown={handleSearch}/>
+        
         {/* Create new event button */}
-        <Link href="/booking" 
-            className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
-            Create New Event
-        </Link>
+            <Link href="/booking" 
+                className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
+                Create New Event
+            </Link>
+        </div>
 
-        {/* Date picker */}
-        <input type="date" value={date}
-         onChange={e => setDate(e.target.value)} className="w-full max-w-2xl h-12 rounded-full border-[#E32373] bg-[#F9FAFB] px-5 text-base placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#E32373] focus:border-[#E32373]"/>
-        
-        {/* Search Bar */}
-        <input type="search" value={search} onChange={e => setSearch(e.target.value)} name="q" placeholder="Search.." defaultValue={q} className="w-full max-w-2xl h-12 rounded-full border-[#E32373] bg-[#F9FAFB] px-5 text-base placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#E32373] focus:border-[#E32373]" onKeyDown={handleSearch}/>
-        
         {/* Table to display the event information in */}
-        <table className="w-full m-6">
+        <table className="w-full">
             {/* Event headers */}
             <thead style={styles.th}>
                 <tr>
-                    <th>Date</th>
+                    <th onClick={() => setSortOrder(sortOrder === "ascending" ? "descending" : "ascending")}>
+                    Date ( {sortOrder === "ascending" ? "Ascending" : "Descending"})</th>
                     <th>Event</th>
                     <th>Organiser</th>
                     <th>Start Time</th>
@@ -160,8 +163,6 @@ export default function EventsList({ events }) {
         ) : (
             <p>Click on an event to show more details</p>
         )}
-
-
     </Layout>
   )
 }
@@ -173,7 +174,8 @@ const styles = {
     },
     th: {
         backgroundColor: "#EC4899",
-        padding: 20
+        padding: 10,
+        textAlign: "left"
     },
     p: {
         textAlign: "left"
