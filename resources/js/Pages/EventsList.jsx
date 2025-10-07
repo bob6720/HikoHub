@@ -19,6 +19,15 @@ export default function EventsList({ events }) {
         )
     )
 
+    // For setting the order of the dates
+    const [sortOrder, setSortOrder] = useState('ascending');
+
+    const sortedEvents = filteredEvents.sort((firstEvent, secondEvent) => {
+        const firstDate = new Date(firstEvent.event_date);
+        const secondDate = new Date(secondEvent.event_date);
+        return sortOrder === 'ascending' ? firstDate - secondDate : secondDate - firstDate;
+    })
+
     const handleSearch = (e) =>{
         if (e.key === 'Enter') {
             e.preventDefault(); // intercept default form submit
@@ -45,6 +54,15 @@ export default function EventsList({ events }) {
 
   return (
     <Layout>
+        <button onClick={() => setSortOrder(sortOrder === "ascending" ? "descending" : "ascending")}>
+            Sort by Date: {sortOrder === "Ascending" ? "Ascending" : "Descending"}
+        </button>
+        {/* Create new event button */}
+        <Link href="/booking" 
+            className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
+            Create New Event
+        </Link>
+
         {/* Date picker */}
         <input type="date" value={date}
          onChange={e => setDate(e.target.value)} className="w-full max-w-2xl h-12 rounded-full border-[#E32373] bg-[#F9FAFB] px-5 text-base placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#E32373] focus:border-[#E32373]"/>
@@ -66,7 +84,7 @@ export default function EventsList({ events }) {
             </thead>
             <tbody>
                 {/* Display all the events with filter applied */}
-                {filteredEvents.map((event) => (
+                {sortedEvents.map((event) => (
                     <tr key={event.id} onClick={() => setEventPicked(event)}>
                         <td style={styles.td}>{event.event_date}</td>
                         <td style={styles.td}>{event.event_name}</td>
@@ -75,7 +93,7 @@ export default function EventsList({ events }) {
                         <td style={styles.td}>{event.contact_number}</td>
                     </tr>
                 ))}
-                {filteredEvents.length === 0 && (
+                {sortedEvents.length === 0 && (
                     <p>No events Found</p>
                 )}
             </tbody>
@@ -86,31 +104,34 @@ export default function EventsList({ events }) {
         {eventPicked ? (
             
             <div className="client-details-box">
-                <div className="form-row">
+                <div className="form-row" style={styles.p}>
                     {/* Display the event information in more depth */}
                     <label>Event Name:</label>
-                    <p style={styles.p}>{eventPicked.event_name}</p>
+                    <p>{eventPicked.event_name}</p>
                     <label>Event Date:</label>
-                    <p style={styles.p}>{eventPicked.event_date}</p>
+                    <p>{eventPicked.event_date}</p>
                     <label>Organiser:</label>
-                    <p style={styles.p}>{eventPicked.organiser}</p>
+                    <p>{eventPicked.organiser}</p>
                     <label>Start Time:</label>
-                    <p style={styles.p}>{eventPicked.start_time}</p>
+                    <p>{eventPicked.start_time}</p>
                     <label>End Time:</label>
-                    <p style={styles.p}>{eventPicked.end_time}</p>
+                    <p>{eventPicked.end_time}</p>
                     <label>Contact:</label>
-                    <p style={styles.p}>{eventPicked.contact_number}</p>
+                    <p>{eventPicked.contact_number}</p>
                     <label>Contact Email:</label>
-                    <p style={styles.p}>{eventPicked.contact_email}</p>
+                    <p>{eventPicked.contact_email}</p>
                     <label>Number of People:</label>
-                    <p style={styles.p}>{eventPicked.number_of_people}</p>
+                    <p>{eventPicked.number_of_people}</p>
 
                     {/* Confirmation from user if they really want to delete the event. */}
-                    <button onClick={() => {
+                    <button className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#F04639] bg-[#a5144e] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg" 
+                        onClick={() => {
                         if (window.confirm("Are you sure you want to delete this event?")) {
                             deleteEvent(eventPicked.id)
                         }
                     }}>Delete Event</button>
+
+                    
                 
                 </div>
             </div>   
@@ -118,11 +139,7 @@ export default function EventsList({ events }) {
             <p>Click on an event to show more details</p>
         )}
 
-        {/* Create new event button */}
-        <Link href="/booking" 
-            className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
-            Create New Event
-        </Link>
+
     </Layout>
   )
 }
