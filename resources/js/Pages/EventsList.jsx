@@ -52,11 +52,27 @@ export default function EventsList({ events }) {
         })
     }
 
+    // Editing an event
+        function editEvent(id, newData) {
+
+        router.put(`/events/${id}`, newData, {
+            onSuccess: () => {
+                alert("Event updated.")
+            },
+            onError: () => {
+                alert("Event failed to be updated.")
+            }
+        })
+    }
+
+
   return (
     <Layout>
+        {/* Button for changing date display order */}
         <button onClick={() => setSortOrder(sortOrder === "ascending" ? "descending" : "ascending")}>
             Sort by Date: {sortOrder === "Ascending" ? "Ascending" : "Descending"}
         </button>
+
         {/* Create new event button */}
         <Link href="/booking" 
             className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
@@ -105,23 +121,24 @@ export default function EventsList({ events }) {
             
             <div className="client-details-box">
                 <div className="form-row" style={styles.p}>
+                    
                     {/* Display the event information in more depth */}
                     <label>Event Name:</label>
-                    <p>{eventPicked.event_name}</p>
+                    <input value={eventPicked.event_name} onChange={(e) => setEventPicked({ ...eventPicked, event_name: e.target.value})}/>
                     <label>Event Date:</label>
-                    <p>{eventPicked.event_date}</p>
+                    <input value={eventPicked.event_date} onChange={(e) => setEventPicked({ ...eventPicked, event_date: e.target.value})}/>
                     <label>Organiser:</label>
-                    <p>{eventPicked.organiser}</p>
+                    <input value={eventPicked.organiser} onChange={(e) => setEventPicked({ ...eventPicked, organiser: e.target.value})}/>
                     <label>Start Time:</label>
-                    <p>{eventPicked.start_time}</p>
+                    <input value={eventPicked.start_time} onChange={(e) => setEventPicked({ ...eventPicked, start_time: e.target.value})}/>
                     <label>End Time:</label>
-                    <p>{eventPicked.end_time}</p>
+                    <input value={eventPicked.end_time} onChange={(e) => setEventPicked({ ...eventPicked, end_time: e.target.value})}/>
                     <label>Contact:</label>
-                    <p>{eventPicked.contact_number}</p>
+                    <input value={eventPicked.contact_number} onChange={(e) => setEventPicked({ ...eventPicked, contact_number: e.target.value})}/>
                     <label>Contact Email:</label>
-                    <p>{eventPicked.contact_email}</p>
+                    <input value={eventPicked.contact_email} onChange={(e) => setEventPicked({ ...eventPicked, contact_email: e.target.value})}/>
                     <label>Number of People:</label>
-                    <p>{eventPicked.number_of_people}</p>
+                    <input value={eventPicked.number_of_people} onChange={(e) => setEventPicked({ ...eventPicked, number_of_people: e.target.value})}/>
 
                     {/* Confirmation from user if they really want to delete the event. */}
                     <button className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#F04639] bg-[#a5144e] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg" 
@@ -130,6 +147,11 @@ export default function EventsList({ events }) {
                             deleteEvent(eventPicked.id)
                         }
                     }}>Delete Event</button>
+
+                    <button className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#F04639] bg-[#a5144e] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg" 
+                        onClick={() => {
+                            editEvent(eventPicked.id, eventPicked)
+                    }}>Save Edits</button>
 
                     
                 
