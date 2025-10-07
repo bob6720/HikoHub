@@ -73,7 +73,14 @@ Route::get('/events-list', function () {
 Route::delete('/events/{id}', function($id) {
     $event =Event::findOrFail($id);
     $event->delete();
-    return response()->json(['success' => true]);
+    return redirect()->back();
+});
+
+// Edit an event. Save details
+Route::put('/events/{id}', function(Request $request, $id){
+    $event = \App\Models\Event::findOrFail($id);
+    $event->update($request->all());
+    return redirect()->back();
 });
 
 
