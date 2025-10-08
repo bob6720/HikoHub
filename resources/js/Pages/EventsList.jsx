@@ -5,7 +5,7 @@ import "../../css/booking.css";
 
 export default function EventsList({ events }) {
 
-    console.log(events)
+    // console.log(events)
 
     const params = new URLSearchParams(window.location.search);
     const q = params.get('q') ?? '';
@@ -13,9 +13,10 @@ export default function EventsList({ events }) {
     const [date, setDate] = useState('');
     const [search, setSearch] = useState('');
 
+    // For filtering by Event Name or Organiser or Date
     const filteredEvents = events.filter(event =>
-        event.event_name.toLowerCase().includes(search.toLowerCase()) ||
-        event.organiser.toLowerCase().includes(search.toLowerCase()) && 
+        (event.event_name.toLowerCase().includes(search.toLowerCase()) ||
+        event.organiser.toLowerCase().includes(search.toLowerCase())) && 
         (date ? event.event_date === date :true))
 
     // For setting the order of the dates
@@ -26,6 +27,12 @@ export default function EventsList({ events }) {
         const secondDate = new Date(secondEvent.event_date);
         return sortOrder === 'ascending' ? firstDate - secondDate : secondDate - firstDate;
     })
+
+    // For pagination - Max 25 pages shown at once
+    const [currentPage, setCurrentPage] = useState(1);
+    const totalPages = Math.ceil(sortedEvents.length / 25);
+    const currentEvents = sortedEvents.slice((currentPage - 1) * 25, currentPage * 25);
+
 
     const handleSearch = (e) =>{
         if (e.key === 'Enter') {
@@ -91,21 +98,21 @@ export default function EventsList({ events }) {
         {/* Table to display the event information in */}
         <table className="w-full">
             {/* Event headers */}
-            <thead style={styles.th}>
+            <thead>
                 <tr>
-                    <th onClick={() => setSortOrder(sortOrder === "ascending" ? "descending" : "ascending")}>
-                    Date ( {sortOrder === "ascending" ? "Ascending" : "Descending"})</th>
-                    <th>Event</th>
-                    <th>Organiser</th>
-                    <th>Start Time</th>
-                    <th>Contact</th>
+                    <th style={styles.th} onClick={() => setSortOrder(sortOrder === "ascending" ? "descending" : "ascending")}>
+                    Date ({sortOrder === "ascending" ? "Ascending" : "Descending"})</th>
+                    <th style={styles.th}>Event</th>
+                    <th style={styles.th}>Organiser</th>
+                    <th style={styles.th}>Start Time</th>
+                    <th style={styles.th}>Contact</th>
                 </tr>
             </thead>
             <tbody>
                 {/* Display all the events with filter applied */}
-                {sortedEvents.map((event) => (
+                {currentEvents.map((event) => (
                     <tr key={event.id} onClick={() => setEventPicked(event)}>
-                        <td style={styles.td}>{event.event_date}</td>
+                        <td style={styles.td}>{new Date(event.event_date).toLocaleDateString('en-NZ')}</td>
                         <td style={styles.td}>{event.event_name}</td>
                         <td style={styles.td}>{event.organiser}</td>
                         <td style={styles.td}>{event.start_time}</td>
@@ -117,6 +124,15 @@ export default function EventsList({ events }) {
                 )}
             </tbody>
         </table>
+
+        {/* If theres more pages to show then enable the buttons and show the next set of pages */}
+        <div className="flex justify-between mb-4">
+            <button disabled={currentPage === 1} className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#208D63] bg-[#208D63] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg"
+                onClick={() => setCurrentPage(currentPage - 1)}>Previous</button>
+            <button disabled={currentPage === totalPages} className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#208D63] bg-[#208D63] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg"
+                onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
+        </div>
+    
         
         {/* If an event is selected, display more event details */}
         <h2>Event Details</h2>
@@ -144,14 +160,14 @@ export default function EventsList({ events }) {
                     <input value={eventPicked.number_of_people} onChange={(e) => setEventPicked({ ...eventPicked, number_of_people: e.target.value})}/>
 
                     {/* Confirmation from user if they really want to delete the event. */}
-                    <button className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#F04639] bg-[#a5144e] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg" 
+                    <button className="h-12 min-w-[140px] px-2 py-4  mt-5 rounded-full border border-[#F04639] bg-[#a5144e] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg" 
                         onClick={() => {
                         if (window.confirm("Are you sure you want to delete this event?")) {
                             deleteEvent(eventPicked.id)
                         }
                     }}>Delete Event</button>
 
-                    <button className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#F04639] bg-[#a5144e] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg" 
+                    <button className="h-12 min-w-[140px] px-2 py-4 mt-5 rounded-full border border-[#F04639] bg-[#a5144e] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg" 
                         onClick={() => {
                             editEvent(eventPicked.id, eventPicked)
                     }}>Save Edits</button>
@@ -173,9 +189,10 @@ const styles = {
         textAlign: "left"
     },
     th: {
-        backgroundColor: "#EC4899",
+        // backgroundColor: "#EC4899",
         padding: 10,
         textAlign: "left"
+        
     },
     p: {
         textAlign: "left"
