@@ -48,13 +48,19 @@ Route::get('/', function (Request $request) {
     ]);
 });
 
-// Booking form page (renders Booking.vue/Booking.jsx)
-Route::get('/booking', function () {
-    return Inertia::render('Booking');
-})->name('booking');
+// Booking form page (renders Booking.vue/Booking.jsx) -Updated to only allow access to authenticated users
+Route::middleware('auth')->group(function () {
+    Route::get('/booking', function () {
+        return Inertia::render('Booking');
+    })->name('booking');
+});
 
-// ✅ Booking API endpoint (this is where your React form submits)
+// Booking API endpoint (this is where your React form submits)
 Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+
+// Checks existing bookings so that when a new booking is made it doesnt conflict with existing bookings
+Route::post('/check-booking', [BookingController::class, 'checkBooking'])->name('bookings.check');
+
 
 // Calendar page
 Route::get('/calendar', function () {
@@ -89,5 +95,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Log out route
+Route::post('/logout', [ProfileController::class, 'logout'])->name('logout');
 
 require __DIR__.'/auth.php';

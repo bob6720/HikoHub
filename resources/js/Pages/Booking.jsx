@@ -3,6 +3,12 @@ import Layout from "@/Layouts/MainLayout";
 import "../../css/booking.css";
 import axios from "axios";
 
+// Laravel CSRF protection for web routes
+axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
+axios.defaults.headers.common["X-CSRF-TOKEN"] = document
+  .querySelector('meta[name="csrf-token"]')
+  ?.getAttribute("content");
+
 export default function Booking() {
   const initialState = {
     event_name: "",
@@ -41,8 +47,14 @@ export default function Booking() {
   };
 
   const [formData, setFormData] = useState(initialState);
+  const [loading, setLoading] = useState(false);
 
-  // update state when inputs change
+  // Calculate tomorrow for date min
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minDate = tomorrow.toISOString().split("T")[0];
+
+  // Update state when inputs change
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -50,28 +62,66 @@ export default function Booking() {
     });
   };
 
-  // submit form
+  // Helper: build time string from hour + minute
+  const setTime = (field, hour, minute) => {
+    if (!hour && !minute) {
+      setFormData({ ...formData, [field]: "" });
+      return;
+    }
+    const h = (hour || "09").padStart(2, "0");
+    const m = minute || "00";
+    setFormData({ ...formData, [field]: `${h}:${m}` });
+  };
+
+  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting form data:", formData);
+
+    if (!formData.start_time || !formData.end_time) {
+      alert("Please select both start and end time.");
+      return;
+    }
+
+    if (formData.end_time <= formData.start_time) {
+      alert("End time must be later than start time.");
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      const res = await axios.post("http://hikohub.test/bookings", formData, {
+      // Step 1: check for overlap
+      const check = await axios.post("/check-booking", {
+        event_date: formData.event_date,
+        start_time: formData.start_time,
+        end_time: formData.end_time,
+      });
+
+      if (check.data.conflict) {
+        alert("This time slot is already booked. Please choose another time.");
+        setLoading(false);
+        return;
+      }
+
+      // Step 2: create booking
+      const res = await axios.post("/bookings", formData, {
         headers: { "Content-Type": "application/json" },
       });
-      alert("Booking submitted successfully!");
+
+      alert("Booking submitted successfully.");
       console.log("Server response:", res.data);
-      setFormData(initialState); // reset form
+      setFormData(initialState);
     } catch (err) {
       console.error("Booking error:", err.response || err);
-      alert("Error submitting booking. Check console for details.");
+      alert("Error submitting booking. Please check console for details.");
     }
+
+    setLoading(false);
   };
 
   return (
     <Layout>
       <h1>Book Your Event Space</h1>
-      {/* ✅ Removed unsafe action attribute */}
       <form onSubmit={handleSubmit}>
         {/* Box 1: Client Details */}
         <h2>Client Details</h2>
@@ -83,8 +133,10 @@ export default function Booking() {
               name="event_name"
               value={formData.event_name}
               onChange={handleChange}
+              required
             />
           </div>
+
           <div className="form-row">
             <label>Organiser:</label>
             <input
@@ -92,8 +144,10 @@ export default function Booking() {
               name="organiser"
               value={formData.organiser}
               onChange={handleChange}
+              required
             />
           </div>
+
           <div className="form-row">
             <label>Business:</label>
             <input
@@ -101,17 +155,22 @@ export default function Booking() {
               name="business"
               value={formData.business}
               onChange={handleChange}
+              required
             />
           </div>
+
           <div className="form-row">
             <label>Contact Number:</label>
             <input
               type="tel"
               name="contact_number"
+              placeholder="123-456-7890"
               value={formData.contact_number}
               onChange={handleChange}
+              required
             />
           </div>
+
           <div className="form-row">
             <label>Contact Email:</label>
             <input
@@ -119,8 +178,10 @@ export default function Booking() {
               name="contact_email"
               value={formData.contact_email}
               onChange={handleChange}
+              required
             />
           </div>
+
           <div className="form-row">
             <label>Event Date:</label>
             <input
@@ -128,26 +189,103 @@ export default function Booking() {
               name="event_date"
               value={formData.event_date}
               onChange={handleChange}
+              min={minDate}
+              required
             />
           </div>
+
+          {/* Start Time */}
           <div className="form-row">
             <label>Start Time:</label>
-            <input
-              type="time"
-              name="start_time"
-              value={formData.start_time}
-              onChange={handleChange}
-            />
+            <div style={{ display: "flex", gap: "5px" }}>
+              <select
+                value={formData.start_time.split(":")[0] || ""}
+                onChange={(e) =>
+                  setTime(
+                    "start_time",
+                    e.target.value,
+                    formData.start_time.split(":")[1]
+                  )
+                }
+                required
+              >
+                <option value="">-- Hour --</option>
+                {["09", "10", "11", "12", "13", "14", "15", "16", "17"].map(
+                  (h) => (
+                    <option key={h} value={h}>
+                      {h}
+                    </option>
+                  )
+                )}
+              </select>
+
+              <select
+                value={formData.start_time.split(":")[1] || ""}
+                onChange={(e) =>
+                  setTime(
+                    "start_time",
+                    formData.start_time.split(":")[0],
+                    e.target.value
+                  )
+                }
+                required
+              >
+                <option value="">-- Min --</option>
+                {["00", "15", "30", "45"].map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+
+          {/* End Time */}
           <div className="form-row">
             <label>End Time:</label>
-            <input
-              type="time"
-              name="end_time"
-              value={formData.end_time}
-              onChange={handleChange}
-            />
+            <div style={{ display: "flex", gap: "5px" }}>
+              <select
+                value={formData.end_time.split(":")[0] || ""}
+                onChange={(e) =>
+                  setTime(
+                    "end_time",
+                    e.target.value,
+                    formData.end_time.split(":")[1]
+                  )
+                }
+                required
+              >
+                <option value="">-- Hour --</option>
+                {["09", "10", "11", "12", "13", "14", "15", "16", "17"].map(
+                  (h) => (
+                    <option key={h} value={h}>
+                      {h}
+                    </option>
+                  )
+                )}
+              </select>
+
+              <select
+                value={formData.end_time.split(":")[1] || ""}
+                onChange={(e) =>
+                  setTime(
+                    "end_time",
+                    formData.end_time.split(":")[0],
+                    e.target.value
+                  )
+                }
+                required
+              >
+                <option value="">-- Min --</option>
+                {["00", "15", "30", "45"].map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+
           <div className="form-row">
             <label>Number of People:</label>
             <input
@@ -155,6 +293,9 @@ export default function Booking() {
               name="number_of_people"
               value={formData.number_of_people}
               onChange={handleChange}
+              min="1"
+              max="500"
+              required
             />
           </div>
         </div>
@@ -416,10 +557,10 @@ export default function Booking() {
           </div>
         </div>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <div className="form-submit">
-          <button type="submit" className="submit-btn">
-            Submit Booking
+          <button type="submit" className="submit-btn" disabled={loading}>
+            {loading ? "Submitting..." : "Submit Booking"}
           </button>
         </div>
       </form>
