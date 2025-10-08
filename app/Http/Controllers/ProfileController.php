@@ -60,4 +60,16 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+    /**
+     * Log the user out of the application.
+     */
+    public function logout(Request $request): RedirectResponse
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return Redirect::to('/');
+    }
 }

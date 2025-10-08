@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\Booking;
 
 class BookingController extends Controller
@@ -19,9 +20,9 @@ class BookingController extends Controller
             'business' => 'nullable|string|max:255',
             'contact_number' => 'nullable|string|max:50',
             'contact_email' => 'nullable|email|max:255',
-            'event_date' => 'nullable|date',
-            'start_time' => 'nullable|date_format:H:i',
-            'end_time' => 'nullable|date_format:H:i',
+            'event_date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
             'number_of_people' => 'nullable|integer|min:1',
             'parking' => 'nullable|string|max:50',
             'access_required' => 'nullable|string|max:50',
@@ -52,10 +53,25 @@ class BookingController extends Controller
         // Create booking record
         $booking = Booking::create($validated);
 
-        // Return JSON response
         return response()->json([
             'success' => true,
             'data' => $booking,
         ], 201);
+    }
+
+    /**
+     * Check if booking times overlap
+     */
+    public function checkBooking(Request $request)
+    {
+        $exists = DB::table('bookings')
+            ->where('event_date', $request->event_date)
+            ->where(function ($query) use ($request) {
+                $query->where('start_time', '<', $request->end_time)
+                      ->where('end_time', '>', $request->start_time);
+            })
+            ->exists();
+
+        return response()->json(['conflict' => $exists]);
     }
 }
