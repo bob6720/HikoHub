@@ -41,6 +41,12 @@ export default function Header({ onLogout }) {
               >
                 Calendar
               </Link>
+              <Link
+                href="/events-list"
+                className="text-purple-200 hover:text-pink-400 transition"
+              >
+                Events
+              </Link>
             </>
           ) : (
             <>
