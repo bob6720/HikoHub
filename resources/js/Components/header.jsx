@@ -33,7 +33,7 @@ export default function Header({ onLogout }) {
                 href="/booking"
                 className="text-purple-200 hover:text-pink-400 transition"
               >
-                Bookings
+                Create Booking
               </Link>
 {/*               <Link
                 href="/calendar"
@@ -45,7 +45,7 @@ export default function Header({ onLogout }) {
                 href="/events-list"
                 className="text-purple-200 hover:text-pink-400 transition"
               >
-                Events
+                Manage Events
               </Link>
             </>
           ) : (
