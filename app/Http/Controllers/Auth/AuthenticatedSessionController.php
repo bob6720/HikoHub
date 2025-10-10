@@ -40,7 +40,7 @@ class AuthenticatedSessionController extends Controller
             'secret' => config('services.recaptcha.secret'),
             'response' => $request->input('recaptcha_token'),
         ]);
-
+        
         if (!$response->json('success')) {
             return back()->withErrors(['recaptcha_token' => 'reCAPTCHA verification failed.']);
         }
