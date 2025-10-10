@@ -35,12 +35,12 @@ export default function Header({ onLogout }) {
               >
                 Bookings
               </Link>
-              <Link
+{/*               <Link
                 href="/calendar"
                 className="text-purple-200 hover:text-pink-400 transition"
               >
                 Calendar
-              </Link>
+              </Link> */}
               <Link
                 href="/events-list"
                 className="text-purple-200 hover:text-pink-400 transition"
@@ -50,20 +50,20 @@ export default function Header({ onLogout }) {
             </>
           ) : (
             <>
-              <a
+{/*               <a
                 href="https://www.hikohub.co.nz/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-purple-200 hover:text-pink-400 transition"
               >
                 About
-              </a>
-              <Link
+              </a> */}
+{/*               <Link
                 href="/contact"
                 className="text-purple-200 hover:text-pink-400 transition"
               >
                 Contact
-              </Link>
+              </Link> */}
             </>
           )}
         </div>
