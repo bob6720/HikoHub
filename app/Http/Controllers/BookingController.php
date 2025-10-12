@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Booking;
+use Carbon\Carbon;
 
 class BookingController extends Controller
 {
@@ -22,7 +23,7 @@ class BookingController extends Controller
             'contact_email' => 'nullable|email|max:255',
             'event_date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
+            'end_time' => 'required|date_format:H:i',
             'number_of_people' => 'nullable|integer|min:1',
             'parking' => 'nullable|string|max:50',
             'access_required' => 'nullable|string|max:50',
@@ -48,6 +49,7 @@ class BookingController extends Controller
             'for_visitors' => 'nullable|string|max:50',
             'music' => 'nullable|string|max:50',
             'arriving' => 'nullable|string|max:255',
+            'additional_details' => 'nullable|string|max:1000', // ✅ new field added
         ]);
 
         // Create booking record
@@ -60,17 +62,30 @@ class BookingController extends Controller
     }
 
     /**
-     * Check if booking times overlap
+     * Check if booking times overlap (supports bookings that cross midnight)
      */
     public function checkBooking(Request $request)
     {
-        $exists = DB::table('bookings')
-            ->where('event_date', $request->event_date)
-            ->where(function ($query) use ($request) {
-                $query->where('start_time', '<', $request->end_time)
-                      ->where('end_time', '>', $request->start_time);
-            })
-            ->exists();
+        $date = $request->event_date;
+        $start_time = $request->start_time;
+        $end_time = $request->end_time;
+        $crosses_midnight = $request->crosses_midnight;
+
+        // Convert to datetime ranges using Carbon
+        $start = Carbon::parse("$date $start_time");
+        $end = $crosses_midnight
+            ? Carbon::parse("$date $end_time")->addDay() // goes past midnight
+            : Carbon::parse("$date $end_time");
+
+        // Conflict check: any booking that overlaps this period
+        $exists = Booking::where(function ($query) use ($start, $end) {
+            $query->whereRaw("
+                STR_TO_DATE(CONCAT(event_date, ' ', start_time), '%Y-%m-%d %H:%i') < ?
+            ", [$end])
+            ->whereRaw("
+                STR_TO_DATE(CONCAT(event_date, ' ', end_time), '%Y-%m-%d %H:%i') > ?
+            ", [$start]);
+        })->exists();
 
         return response()->json(['conflict' => $exists]);
     }

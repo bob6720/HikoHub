@@ -3,7 +3,8 @@ import Layout from "@/Layouts/MainLayout";
 import "../../css/booking.css";
 import axios from "axios";
 
-// Laravel CSRF protection for web routes
+
+// Laravel CSRF protection
 axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
 axios.defaults.headers.common["X-CSRF-TOKEN"] = document
   .querySelector('meta[name="csrf-token"]')
@@ -44,17 +45,19 @@ export default function Booking() {
     for_visitors: "",
     music: "",
     arriving: "",
+    additional_details: "", // ✅ new field
   };
 
+  const [showPopup, setShowPopup] = useState(false);
+  const [savedBooking, setSavedBooking] = useState(null);
   const [formData, setFormData] = useState(initialState);
   const [loading, setLoading] = useState(false);
 
-  // Calculate tomorrow for date min
+  // Min date (tomorrow)
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().split("T")[0];
 
-  // Update state when inputs change
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -62,18 +65,17 @@ export default function Booking() {
     });
   };
 
-  // Helper: build time string from hour + minute
+  // Combine hour + minute into HH:mm
   const setTime = (field, hour, minute) => {
     if (!hour && !minute) {
       setFormData({ ...formData, [field]: "" });
       return;
     }
-    const h = (hour || "09").padStart(2, "0");
+    const h = (hour || "00").padStart(2, "0");
     const m = minute || "00";
     setFormData({ ...formData, [field]: `${h}:${m}` });
   };
 
-  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -82,48 +84,87 @@ export default function Booking() {
       return;
     }
 
-    if (formData.end_time <= formData.start_time) {
-      alert("End time must be later than start time.");
-      return;
-    }
-
     setLoading(true);
 
     try {
-      // Step 1: check for overlap
+      // Step 1: check if booking crosses midnight
+      const crossesMidnight = formData.end_time < formData.start_time;
+
+      // Step 2: send for overlap check
       const check = await axios.post("/check-booking", {
         event_date: formData.event_date,
         start_time: formData.start_time,
         end_time: formData.end_time,
+        crosses_midnight: crossesMidnight,
       });
 
       if (check.data.conflict) {
-        alert("This time slot is already booked. Please choose another time.");
+        alert("This time slot overlaps with another booking.");
         setLoading(false);
         return;
       }
 
-      // Step 2: create booking
+      // Step 3: create booking
       const res = await axios.post("/bookings", formData, {
         headers: { "Content-Type": "application/json" },
       });
 
-      alert("Booking submitted successfully.");
-      console.log("Server response:", res.data);
+      setSavedBooking(res.data.data);
+      setShowPopup(true);
       setFormData(initialState);
+
     } catch (err) {
       console.error("Booking error:", err.response || err);
-      alert("Error submitting booking. Please check console for details.");
+      alert("Error submitting booking.");
     }
 
     setLoading(false);
   };
 
+  // Generate 00–23 hours
+  const hours = Array.from({ length: 24 }, (_, i) =>
+    i.toString().padStart(2, "0")
+  );
+  const minutes = ["00", "15", "30", "45"];
+
   return (
     <Layout>
       <h1>Book Your Event Space</h1>
+      {/* ✅ Popup Window */}
+      {showPopup && savedBooking && (
+        <div className="popup-overlay">
+          <div className="popup-window">
+            <h2>Booking Submitted Successfully!</h2>
+            <div className="popup-details">
+              <p><strong>Event:</strong> {savedBooking.event_name}</p>
+              <p><strong>Organiser:</strong> {savedBooking.organiser}</p>
+              <p><strong>Business:</strong> {savedBooking.business}</p>
+              <p><strong>Contact:</strong> {savedBooking.contact_email}</p>
+              <p><strong>Date:</strong> {savedBooking.event_date}</p>
+              <p><strong>Time:</strong> {savedBooking.start_time} - {savedBooking.end_time}</p>
+              <p><strong>People:</strong> {savedBooking.number_of_people}</p>
+              {savedBooking.additional_details && (
+                <p><strong>Additional Details:</strong> {savedBooking.additional_details}</p>
+              )}
+            </div>
+
+            <div className="popup-actions">
+              <button className="popup-btn" onClick={() => setShowPopup(false)}>
+                Make Another Booking
+              </button>
+              <button className="popup-btn" onClick={() => (window.location.href = "/calendar")}>
+                View Bookings
+              </button>
+              <button className="popup-btn cancel" onClick={() => window.location.href = '/'}>
+                Close Window
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
-        {/* Box 1: Client Details */}
+        {/* BOX 1: Client Details */}
         <h2>Client Details</h2>
         <div className="client-details-box">
           <div className="form-row">
@@ -210,13 +251,11 @@ export default function Booking() {
                 required
               >
                 <option value="">-- Hour --</option>
-                {["09", "10", "11", "12", "13", "14", "15", "16", "17"].map(
-                  (h) => (
-                    <option key={h} value={h}>
-                      {h}
-                    </option>
-                  )
-                )}
+                {hours.map((h) => (
+                  <option key={h} value={h}>
+                    {h}
+                  </option>
+                ))}
               </select>
 
               <select
@@ -231,7 +270,7 @@ export default function Booking() {
                 required
               >
                 <option value="">-- Min --</option>
-                {["00", "15", "30", "45"].map((m) => (
+                {minutes.map((m) => (
                   <option key={m} value={m}>
                     {m}
                   </option>
@@ -256,13 +295,11 @@ export default function Booking() {
                 required
               >
                 <option value="">-- Hour --</option>
-                {["09", "10", "11", "12", "13", "14", "15", "16", "17"].map(
-                  (h) => (
-                    <option key={h} value={h}>
-                      {h}
-                    </option>
-                  )
-                )}
+                {hours.map((h) => (
+                  <option key={h} value={h}>
+                    {h}
+                  </option>
+                ))}
               </select>
 
               <select
@@ -277,7 +314,7 @@ export default function Booking() {
                 required
               >
                 <option value="">-- Min --</option>
-                {["00", "15", "30", "45"].map((m) => (
+                {minutes.map((m) => (
                   <option key={m} value={m}>
                     {m}
                   </option>
@@ -300,7 +337,7 @@ export default function Booking() {
           </div>
         </div>
 
-        {/* Box 2: Access & Facilities */}
+        {/* BOX 2: Access & Facilities */}
         <h2>Access & Facilities</h2>
         <div className="client-details-box">
           <div className="form-row">
@@ -315,6 +352,7 @@ export default function Booking() {
               <option value="no">No</option>
             </select>
           </div>
+
           <div className="form-row">
             <label>Access Required:</label>
             <select
@@ -327,6 +365,7 @@ export default function Booking() {
               <option value="no">No</option>
             </select>
           </div>
+
           <div className="form-row">
             <label>Aircon Time:</label>
             <input
@@ -338,7 +377,7 @@ export default function Booking() {
           </div>
         </div>
 
-        {/* Box 3: Catering */}
+        {/* BOX 3: Catering */}
         <h2>Catering</h2>
         <div className="client-details-box">
           <div className="form-row">
@@ -350,6 +389,7 @@ export default function Booking() {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label>Caterer:</label>
             <input
@@ -359,6 +399,7 @@ export default function Booking() {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label>Organiser:</label>
             <input
@@ -368,6 +409,7 @@ export default function Booking() {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label>Alcohol:</label>
             <select
@@ -380,6 +422,7 @@ export default function Booking() {
               <option value="no">No</option>
             </select>
           </div>
+
           <div className="form-row">
             <label>Time Required:</label>
             <input
@@ -389,6 +432,7 @@ export default function Booking() {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label>GL Code:</label>
             <input
@@ -398,6 +442,7 @@ export default function Booking() {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label>Dietary Requirements:</label>
             <input
@@ -409,7 +454,7 @@ export default function Booking() {
           </div>
         </div>
 
-        {/* Box 4: Equipment */}
+        {/* BOX 4: Equipment */}
         <h2>Equipment</h2>
         <div className="client-details-box">
           <div className="form-row">
@@ -424,6 +469,7 @@ export default function Booking() {
               <option value="no">No</option>
             </select>
           </div>
+
           <div className="form-row">
             <label>AV Equipment:</label>
             <input
@@ -433,6 +479,7 @@ export default function Booking() {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label>Chairs:</label>
             <input
@@ -442,6 +489,7 @@ export default function Booking() {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label>Tables:</label>
             <input
@@ -451,6 +499,7 @@ export default function Booking() {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label>Displays:</label>
             <input
@@ -460,6 +509,7 @@ export default function Booking() {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label>Marketing Signage:</label>
             <input
@@ -469,6 +519,7 @@ export default function Booking() {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label>Equipment GL Code:</label>
             <input
@@ -480,7 +531,7 @@ export default function Booking() {
           </div>
         </div>
 
-        {/* Box 5: Extras */}
+        {/* BOX 5: Extras */}
         <h2>Extras</h2>
         <div className="client-details-box">
           <div className="form-row">
@@ -495,6 +546,7 @@ export default function Booking() {
               <option value="no">No</option>
             </select>
           </div>
+
           <div className="form-row">
             <label>Boards:</label>
             <input
@@ -504,6 +556,7 @@ export default function Booking() {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label>Furniture:</label>
             <input
@@ -513,6 +566,7 @@ export default function Booking() {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label>Comms:</label>
             <input
@@ -522,6 +576,7 @@ export default function Booking() {
               onChange={handleChange}
             />
           </div>
+
           <div className="form-row">
             <label>For Visitors:</label>
             <select
@@ -534,6 +589,7 @@ export default function Booking() {
               <option value="no">No</option>
             </select>
           </div>
+
           <div className="form-row">
             <label>Music:</label>
             <select
@@ -546,6 +602,7 @@ export default function Booking() {
               <option value="no">No</option>
             </select>
           </div>
+
           <div className="form-row">
             <label>Arriving:</label>
             <input
@@ -554,6 +611,45 @@ export default function Booking() {
               value={formData.arriving}
               onChange={handleChange}
             />
+          </div>
+
+          {/* ✅ Optional Additional Details */}
+          <div className="form-row" style={{ display: "block" }}>
+            <label>Optional Additional Details:</label>
+            <textarea
+              name="additional_details"
+              value={formData.additional_details || ""}
+              onChange={(e) => {
+                const input = e.target.value;
+                const cleaned = input.replace(/[(){}[\]<>;=+$`]/g, "");
+                if (cleaned.length <= 1000) {
+                  setFormData({ ...formData, additional_details: cleaned });
+                }
+              }}
+              maxLength="1000"
+              rows="5"
+              placeholder="Enter any optional notes or extra details (max 1000 characters)"
+              style={{
+                width: "100%",
+                padding: "8px",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+                resize: "vertical",
+              }}
+            ></textarea>
+            <p
+              style={{
+                fontSize: "0.9rem",
+                color: "white",
+                textAlign: "right",
+                marginTop: "4px",
+              }}
+            >
+              {formData.additional_details
+                ? 1000 - formData.additional_details.length
+                : 1000}{" "}
+              characters remaining
+            </p>
           </div>
         </div>
 
