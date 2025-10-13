@@ -43,5 +43,6 @@ class Booking extends Model
         'for_visitors',
         'music',
         'arriving',
+        'additional_details',
     ];
 }
