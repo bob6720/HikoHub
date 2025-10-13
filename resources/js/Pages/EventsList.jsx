@@ -91,7 +91,7 @@ export default function EventsList({ events }) {
         {/* Create new event button */}
             <Link href="/booking" 
                 className="h-12 min-w-[140px] px-2 py-4  rounded-full border border-[#F04639] bg-[#F04639] text-white hover:bg-[#E32373] transition text-sm font-medium flex items-center justify-center shadow-lg">
-                Create New Event
+                New Booking
             </Link>
         </div>
 
