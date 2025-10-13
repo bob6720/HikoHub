@@ -56,39 +56,49 @@ Route::middleware('auth')->group(function () {
 });
 
 // Booking API endpoint (this is where your React form submits)
-Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+Route::middleware('auth')->group(function () {
+    Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+});
 
 // Checks existing bookings so that when a new booking is made it doesnt conflict with existing bookings
-Route::post('/check-booking', [BookingController::class, 'checkBooking'])->name('bookings.check');
-
+Route::middleware('auth')->group(function () {
+    Route::post('/check-booking', [BookingController::class, 'checkBooking'])->name('bookings.check');
+});
 
 // Calendar page
-Route::get('/calendar', function () {
-    return Inertia::render('Calendar');
-})->name('calendar');
+Route::middleware('auth')->group(function () {
+    Route::get('/calendar', function () {
+        return Inertia::render('Calendar');
+    })->name('calendar');
+});
 
 // Events List Page
-Route::get('/events-list', function () {
-    $events = Event::all();
-    return Inertia::render('EventsList', [
-        'events' => $events
-    ]);
-})->name('events-list');
+Route::middleware('auth')->group(function () {
+    Route::get('/events-list', function () {
+        $events = Event::all();
+        return Inertia::render('EventsList', [
+            'events' => $events
+        ]);
+    })->name('events-list');
+});
 
 // Deleting an event
-Route::delete('/events/{id}', function($id) {
-    $event =Event::findOrFail($id);
-    $event->delete();
-    return redirect()->back();
+Route::middleware('auth')->group(function () {
+    Route::delete('/events/{id}', function($id) {
+        $event =Event::findOrFail($id);
+        $event->delete();
+        return redirect()->back();
+    });
 });
 
 // Edit an event. Save details
-Route::put('/events/{id}', function(Request $request, $id){
-    $event = \App\Models\Event::findOrFail($id);
-    $event->update($request->all());
-    return redirect()->back();
+Route::middleware('auth')->group(function () {
+    Route::put('/events/{id}', function(Request $request, $id){
+        $event = \App\Models\Event::findOrFail($id);
+        $event->update($request->all());
+        return redirect()->back();
+    });
 });
-
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
