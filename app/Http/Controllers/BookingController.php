@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Booking;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
 {
@@ -66,27 +68,47 @@ class BookingController extends Controller
      */
     public function checkBooking(Request $request)
     {
-        $date = $request->event_date;
-        $start_time = $request->start_time;
-        $end_time = $request->end_time;
-        $crosses_midnight = $request->crosses_midnight;
+        $validator = Validator::make($request->all(), [
+            'event_date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i',
+            'crosses_midnight' => 'boolean',
+        ]);
 
-        // Convert to datetime ranges using Carbon
-        $start = Carbon::parse("$date $start_time");
-        $end = $crosses_midnight
-            ? Carbon::parse("$date $end_time")->addDay() // goes past midnight
-            : Carbon::parse("$date $end_time");
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
-        // Conflict check: any booking that overlaps this period
-        $exists = Booking::where(function ($query) use ($start, $end) {
-            $query->whereRaw("
-                STR_TO_DATE(CONCAT(event_date, ' ', start_time), '%Y-%m-%d %H:%i') < ?
-            ", [$end])
-            ->whereRaw("
-                STR_TO_DATE(CONCAT(event_date, ' ', end_time), '%Y-%m-%d %H:%i') > ?
-            ", [$start]);
-        })->exists();
+        $data = $validator->validated();
 
-        return response()->json(['conflict' => $exists]);
+        try {
+            // Create Carbon instances for the new booking
+            $newStart = Carbon::createFromFormat('Y-m-d H:i', $data['event_date'] . ' ' . $data['start_time']);
+            $newEnd = Carbon::createFromFormat('Y-m-d H:i', $data['event_date'] . ' ' . $data['end_time']);
+
+            // Handle midnight crossing
+            if ($data['crosses_midnight'] && $newEnd->lt($newStart)) {
+                $newEnd->addDay();
+            }
+
+            // PostgreSQL-compatible overlap check
+            $conflict = DB::table('bookings')
+                ->where(function ($query) use ($newStart, $newEnd) {
+                    // Existing booking starts during new booking
+                    $query->where('event_date', $newStart->format('Y-m-d'))
+                          ->whereRaw('TO_TIMESTAMP(CONCAT(event_date, \' \', start_time), \'YYYY-MM-DD HH24:MI\') < ?', [$newEnd])
+                          ->whereRaw('TO_TIMESTAMP(CONCAT(event_date, \' \', end_time), \'YYYY-MM-DD HH24:MI\') > ?', [$newStart]);
+                })
+                ->exists();
+
+            return response()->json([
+                'conflict' => $conflict,
+                'message' => $conflict ? 'Booking conflict found' : 'No conflicts found'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Booking overlap check failed: ' . $e->getMessage());
+            return response()->json(['error' => 'Database error'], 500);
+        }
     }
 }
