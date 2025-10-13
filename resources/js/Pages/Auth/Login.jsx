@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 
 import Checkbox from '@/Components/Checkbox';
@@ -12,6 +12,7 @@ import logo from '../../../images/HIKOHub.svg';
 
 export default function Login({ status, canResetPassword }) {
     const recaptchaRef = useRef(null);
+    const [formErrors, setFormErrors] = useState({});
 
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
@@ -20,11 +21,41 @@ export default function Login({ status, canResetPassword }) {
         recaptcha_token: '',
     });
 
+    const validateForm = () => {
+        const newErrors = {};
+
+        // Email validation
+        if (!data.email) {
+            newErrors.email = 'Email address is required.';
+        } else if (!/\S+@\S+\.\S+/.test(data.email)) {
+            newErrors.email = 'Email address is invalid.';
+        }
+
+        // Password validation
+        if (!data.password) {
+            newErrors.password = 'Password is required.';
+        } else if (data.password.length < 6) {
+            newErrors.password = 'Password must be at least 6 characters.';
+        }
+
+        // reCAPTCHA validation
+        if (!data.recaptcha_token) {
+            newErrors.recaptcha = "Please verify you're not a robot.";
+        }
+
+        setFormErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const submit = (e) => {
         e.preventDefault();
 
-        if (!data.recaptcha_token) {
-            alert("Please verify you're not a robot.");
+        // Clear previous form errors
+        setFormErrors({});
+
+        // Validate form
+        const isValid = validateForm();
+        if (!isValid) {
             return;
         }
 
@@ -33,8 +64,25 @@ export default function Login({ status, canResetPassword }) {
                 reset('password');
                 if (recaptchaRef.current) recaptchaRef.current.reset();
                 setData('recaptcha_token', '');
+                setFormErrors({});
+            },
+            onError: (serverErrors) => {
+                // Merge server errors with client errors if any
+                setFormErrors(prev => ({ ...prev, ...serverErrors }));
             },
         });
+    };
+
+    const handleInputChange = (field, value) => {
+        setData(field, value);
+        // Clear field-specific error when user starts typing
+        if (formErrors[field]) {
+            setFormErrors(prev => ({
+                ...prev,
+                [field]: '',
+                ...(field === 'recaptcha_token' ? { recaptcha: '' } : {})
+            }));
+        }
     };
 
     return (
@@ -70,12 +118,19 @@ export default function Login({ status, canResetPassword }) {
                                 type="email"
                                 name="email"
                                 value={data.email}
-                                className="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-[#F04639] focus:border-[#F04639]"
+                                className={`mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-[#F04639] focus:border-[#F04639] ${
+                                    formErrors.email || errors.email ? 'border-red-500' : ''
+                                }`}
                                 autoComplete="username"
                                 isFocused={true}
-                                onChange={(e) => setData('email', e.target.value)}
+                                onChange={(e) => handleInputChange('email', e.target.value)}
                             />
-                            <InputError message={errors.email} className="mt-2" />
+                            {(formErrors.email || errors.email) && (
+                                <InputError 
+                                    message={formErrors.email || errors.email} 
+                                    className="mt-2" 
+                                />
+                            )}
                         </div>
 
                         {/* Password */}
@@ -86,11 +141,18 @@ export default function Login({ status, canResetPassword }) {
                                 type="password"
                                 name="password"
                                 value={data.password}
-                                className="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-[#F04639] focus:border-[#F04639]"
+                                className={`mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-[#F04639] focus:border-[#F04639] ${
+                                    formErrors.password || errors.password ? 'border-red-500' : ''
+                                }`}
                                 autoComplete="current-password"
-                                onChange={(e) => setData('password', e.target.value)}
+                                onChange={(e) => handleInputChange('password', e.target.value)}
                             />
-                            <InputError message={errors.password} className="mt-2" />
+                            {(formErrors.password || errors.password) && (
+                                <InputError 
+                                    message={formErrors.password || errors.password} 
+                                    className="mt-2" 
+                                />
+                            )}
                         </div>
 
                         {/* Remember Me */}
@@ -107,10 +169,15 @@ export default function Login({ status, canResetPassword }) {
                         <div className="mt-4">
                             <ReCAPTCHA
                                 sitekey={import.meta.env.VITE_NOCAPTCHA_SITEKEY}
-                                onChange={(token) => setData('recaptcha_token', token)}
+                                onChange={(token) => handleInputChange('recaptcha_token', token)}
                                 ref={recaptchaRef}
                             />
-                            <InputError message={errors.recaptcha_token} className="mt-2" />
+                            {formErrors.recaptcha && (
+                                <InputError message={formErrors.recaptcha} className="mt-2" />
+                            )}
+                            {errors.recaptcha_token && (
+                                <InputError message={errors.recaptcha_token} className="mt-2" />
+                            )}
                         </div>
 
                         {/* Buttons */}
@@ -128,7 +195,7 @@ export default function Login({ status, canResetPassword }) {
                                 className="w-full sm:w-auto bg-[#F04639] hover:bg-[#E32373] text-white shadow-lg rounded-lg px-6 py-3"
                                 disabled={processing}
                             >
-                                Log In
+                                {processing ? 'Logging In...' : 'Log In'}
                             </PrimaryButton>
                         </div>
                     </form>

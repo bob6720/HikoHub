@@ -49,11 +49,11 @@ Route::get('/', function (Request $request) {
 });
 
 // Booking form page (renders Booking.vue/Booking.jsx) -Updated to only allow access to authenticated users
-Route::middleware('auth')->group(function () {
-    Route::get('/booking', function () {
-        return Inertia::render('Booking');
-    })->name('booking');
-});
+
+Route::get('/booking', function () {
+    return Inertia::render('Booking');
+})->name('booking');
+
 
 // Booking API endpoint (this is where your React form submits)
 Route::middleware('auth')->group(function () {
