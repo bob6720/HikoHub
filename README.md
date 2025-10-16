@@ -1,61 +1,131 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<h1>Hiko Hub</h1>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+<p>
+  Hiko Hub is a <strong>Laravel Breeze</strong> application powered by
+  <strong>PostgreSQL</strong>, <strong>Vite</strong>, and
+  <strong>Inertia.js</strong>, featuring <strong>Google reCAPTCHA</strong>
+  integration for secure user login. It is designed to manage bookings for
+  events and hot-desking spaces, supporting both internal tenants and
+  external clients.
 </p>
 
-## About Laravel
+<hr>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<h2>⚙️ Tech Stack</h2>
+<ul>
+  <li><strong>Laravel Breeze</strong> (backend framework)</li>
+  <li><strong>PostgreSQL</strong> (database)</li>
+  <li><strong>Vite</strong> (frontend build tool)</li>
+  <li><strong>Inertia.js + Vue</strong> (modern reactive front-end)</li>
+  <li><strong>Tailwind CSS</strong> (UI styling)</li>
+  <li><strong>Google reCAPTCHA API</strong> (bot protection on login)</li>
+</ul>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+<hr>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+<h2>🧩 Environment Configuration</h2>
+<p>
+  In your project’s root directory, create a <code>.env</code> file and include
+  your PostgreSQL connection details along with the Google reCAPTCHA keys.
+</p>
 
-## Learning Laravel
+<pre><code>DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=hikohub
+DB_USERNAME=your_postgres_user
+DB_PASSWORD=your_postgres_password
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+VITE_NOCAPTCHA_SITEKEY=your_recaptcha_site_key
+NOCAPTCHA_SECRET=your_recaptcha_secret_key
+</code></pre>
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+<p>Make sure your database is created before running migrations.</p>
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+<hr>
 
-## Laravel Sponsors
+<h2>🚀 Setup Instructions</h2>
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+<h3>1. Install Required Software</h3>
+<ul>
+  <li><a href="https://laravel.com" target="_blank">Laravel</a></li>
+  <li><a href="https://www.postgresql.org/" target="_blank">PostgreSQL</a></li>
+  <li><a href="https://herd.laravel.com/" target="_blank">Herd</a> (recommended if not using AWS)</li>
+</ul>
 
-### Premium Partners
+<h3>2. Download the Project</h3>
+<p>Clone or download the repository from GitHub:</p>
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+<pre><code>git clone https://github.com/bob6720/HikoHub.git
+</code></pre>
 
-## Contributing
+<h3>3. Prepare the Environment</h3>
+<ul>
+  <li>Ensure Herd (or AWS) is running all required services.</li>
+  <li>Create an empty PostgreSQL database for the project.</li>
+  <li>If using Herd, unzip or move the project folder into your Herd projects directory so Herd can recognize and host it.</li>
+</ul>
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+<h3>4. Configure the Project</h3>
+<ul>
+  <li>Open the project folder in VS Code.</li>
+  <li>Create your <code>.env</code> file (see example above).</li>
+  <li>Set up your database connection and Google reCAPTCHA credentials.</li>
+</ul>
 
-## Code of Conduct
+<h3>5. Install &amp; Run</h3>
+<p>In your terminal, run the following commands:</p>
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+<pre><code>cd &lt;path-to-project&gt;
+npm install
+composer install
+php artisan migrate
+php artisan db:seed
+npm run dev
+</code></pre>
 
-## Security Vulnerabilities
+<p>
+  Once the dev server starts, the terminal will display a local URL (for example
+  <code>http://hikohub.test</code>). Click or open that link in your browser to
+  view the site.
+</p>
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+<hr>
 
-## License
+<h2>🧰 Troubleshooting</h2>
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+<h3>🪿 Herd not connecting</h3>
+<p>
+  If you’re using Herd and can’t connect to the project URL, add this line to your
+  hosts file:
+</p>
+
+<pre><code>C:\Windows\System32\drivers\etc\hosts
+127.0.0.1 hikohub.test
+</code></pre>
+
+<p>Then try visiting <a href="http://hikohub.test" target="_blank">http://hikohub.test</a> again.</p>
+
+<h3>⚠️ Database Errors</h3>
+<p>
+  If errors occur when running:
+</p>
+
+<pre><code>php artisan migrate
+php artisan db:seed
+</code></pre>
+
+<p>Make sure that:</p>
+<ul>
+  <li>The SQL database exists.</li>
+  <li>Your PostgreSQL user has permission to access it.</li>
+  <li>Your <code>.env</code> database settings are correct.</li>
+</ul>
+
+<hr>
+
+<h2>💬 Contact</h2>
+<p>
+  For any questions about the code, contact:<br>
+  <strong>Harry Meyer</strong> — <a href="mailto:meyerharry0@gmail.com">meyerharry0@gmail.com</a>
+</p>
