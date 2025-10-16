@@ -51,7 +51,7 @@ Route::get('/', function (Request $request) {
 // Booking form page (renders Booking.vue/Booking.jsx) -Updated to only allow access to authenticated users
 
 Route::get('/booking', function () {
-    return Inertia::render('Booking');
+    return Inertia::render('Booking');  
 })->name('booking');
 
 
